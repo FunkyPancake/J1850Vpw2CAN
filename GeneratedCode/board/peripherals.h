@@ -96,6 +96,8 @@ extern "C" {
  **********************************************************************************************************************/
 extern const edma_config_t DMA_config;
 extern const flexcan_config_t CAN0_config;
+/* Message buffer 0 configuration structure */
+extern const flexcan_rx_mb_config_t CAN0_rx_mb_config_0;
 extern flexcan_rx_fifo_config_t CAN0_rx_fifo_config;
 extern const lpspi_master_config_t LPSPI0_config;
 extern lpspi_transfer_t LPSPI0_transfer;

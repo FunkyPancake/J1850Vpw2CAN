@@ -198,9 +198,9 @@ instance:
       - disableSelfReception: 'false'
       - enableListenOnlyMode: 'false'
       - timingConfig:
-        - propSeg: '2'
+        - propSeg: '7'
         - phaseSeg1: '4'
-        - phaseSeg2: '3'
+        - phaseSeg2: '2'
         - rJumpwidth: '2'
         - bitTime: []
     - enableRxFIFO: 'false'
@@ -209,7 +209,21 @@ instance:
       - idFilterNum: 'num0'
       - idFilterType: 'kFLEXCAN_RxFifoFilterTypeA'
       - priority: 'kFLEXCAN_RxFifoPrioLow'
-    - channels: []
+    - channels:
+      - 0:
+        - mbID: '0'
+        - mbType: 'mbRx'
+        - rxMb:
+          - id: '0'
+          - format: 'kFLEXCAN_FrameFormatStandard'
+          - type: 'kFLEXCAN_FrameTypeData'
+      - 1:
+        - mbID: '1'
+        - mbType: 'mbTx'
+        - rxMb:
+          - id: '0'
+          - format: 'kFLEXCAN_FrameFormatStandard'
+          - type: 'kFLEXCAN_FrameTypeData'
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS **********/
 /* clang-format on */
 const flexcan_config_t CAN0_config = {
@@ -224,17 +238,27 @@ const flexcan_config_t CAN0_config = {
   .disableSelfReception = false,
   .enableListenOnlyMode = false,
   .timingConfig = {
-    .preDivider = 15,
-    .propSeg = 1,
+    .preDivider = 11,
+    .propSeg = 6,
     .phaseSeg1 = 3,
-    .phaseSeg2 = 2,
+    .phaseSeg2 = 1,
     .rJumpwidth = 1
   }
+};
+/* Message buffer 0 configuration structure */
+const flexcan_rx_mb_config_t CAN0_rx_mb_config_0 = {
+  .id = FLEXCAN_ID_STD(0UL),
+  .format = kFLEXCAN_FrameFormatStandard,
+  .type = kFLEXCAN_FrameTypeData
 };
 
 static void CAN0_init(void) {
   FLEXCAN_Init(CAN0_PERIPHERAL, &CAN0_config, CAN0_CLOCK_SOURCE);
 
+  /* Message buffer 0 initialization */
+  FLEXCAN_SetRxMbConfig(CAN0_PERIPHERAL, 0, &CAN0_rx_mb_config_0, true);
+  /* Message buffer 1 initialization */
+  FLEXCAN_SetTxMbConfig(CAN0_PERIPHERAL, 1, true);
   /* Interrupt vector CAN0_ORed_Message_buffer_IRQn priority settings in the NVIC. */
   NVIC_SetPriority(CAN0_CAN_ORED_MB_IRQN, CAN0_CAN_ORED_MB_IRQ_PRIORITY);
   /* Enable interrupt CAN0_ORed_Message_buffer_IRQn request in the NVIC. */

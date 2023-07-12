@@ -546,9 +546,9 @@
                            <setting name="disableSelfReception" value="false"/>
                            <setting name="enableListenOnlyMode" value="false"/>
                            <struct name="timingConfig">
-                              <setting name="propSeg" value="2"/>
+                              <setting name="propSeg" value="7"/>
                               <setting name="phaseSeg1" value="4"/>
-                              <setting name="phaseSeg2" value="3"/>
+                              <setting name="phaseSeg2" value="2"/>
                               <setting name="rJumpwidth" value="2"/>
                               <struct name="bitTime"/>
                            </struct>
@@ -560,7 +560,26 @@
                            <setting name="idFilterType" value="kFLEXCAN_RxFifoFilterTypeA"/>
                            <setting name="priority" value="kFLEXCAN_RxFifoPrioLow"/>
                         </struct>
-                        <array name="channels"/>
+                        <array name="channels">
+                           <struct name="0">
+                              <setting name="mbID" value="0"/>
+                              <setting name="mbType" value="mbRx"/>
+                              <struct name="rxMb">
+                                 <setting name="id" value="0"/>
+                                 <setting name="format" value="kFLEXCAN_FrameFormatStandard"/>
+                                 <setting name="type" value="kFLEXCAN_FrameTypeData"/>
+                              </struct>
+                           </struct>
+                           <struct name="1">
+                              <setting name="mbID" value="1"/>
+                              <setting name="mbType" value="mbTx"/>
+                              <struct name="rxMb">
+                                 <setting name="id" value="0"/>
+                                 <setting name="format" value="kFLEXCAN_FrameFormatStandard"/>
+                                 <setting name="type" value="kFLEXCAN_FrameTypeData"/>
+                              </struct>
+                           </struct>
+                        </array>
                      </config_set>
                   </instance>
                   <instance name="LPSPI0" uuid="d8f45dda-417f-4db9-bfd5-74221c09a127" type="lpspi" type_id="lpspi_6e21a1e0a09f0a012d683c4f91752db8" mode="freertos" peripheral="LPSPI0" enabled="true" comment="" custom_name_enabled="false" editing_lock="false">
