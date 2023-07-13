@@ -21,7 +21,7 @@ if (CMAKE_BUILD_TYPE MATCHES Debug)
     target_link_libraries(${TARGET_NAME} KeCommon)
 
     target_compile_options(${TARGET_NAME} PRIVATE
-            -O0 -fno-common -g3 -Wall -c -ffunction-sections -fno-rtti -fdata-sections -ffreestanding
+            -O1 -fno-common -g3 -Wall -c -ffunction-sections -fno-rtti -fdata-sections -ffreestanding
             -fno-builtin -fno-exceptions -fmerge-constants -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard
             -mthumb -fstack-usage -specs=nano.specs)
 
@@ -38,7 +38,7 @@ if (CMAKE_BUILD_TYPE MATCHES Debug)
             __NEWLIB__
             )
     target_link_directories(${TARGET_NAME} PRIVATE KeCommon/nxp/linker)
-    target_link_options(${TARGET_NAME} PRIVATE -Wl,-print-memory-usage,--sort-section=alignment,--gc-sections,--cref,-M=${TARGET_NAME}.map -nostdlib -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -T Ke16F256.ld)
+    target_link_options(${TARGET_NAME} PRIVATE -Wl,-print-memory-usage,--sort-section=alignment,--gc-sections,--cref,-M=${TARGET_NAME}.map -nostdlib -flto -O1 -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -T Ke16F256.ld)
 
     set_target_properties(${TARGET_NAME} PROPERTIES OUTPUT_NAME ${TARGET_NAME}.elf)
     #    set_target_properties(${TARGET_NAME}

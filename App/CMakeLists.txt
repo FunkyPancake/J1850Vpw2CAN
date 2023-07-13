@@ -6,9 +6,13 @@ project(Application LANGUAGES CXX C)
 
 target_sources(${TARGET_NAME}
         PRIVATE
-        App.cpp
+        AppTasks.cpp
         main.cpp
+        GearSelector/GearSelector.cpp
         )
+target_include_directories(${TARGET_NAME}
+        PUBLIC
+        GearSelector)
 
 
 

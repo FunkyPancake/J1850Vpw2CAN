@@ -25,6 +25,10 @@ extern "C" {
  */
 void BOARD_InitBootPins(void);
 
+#define PORT_DFER_DFE_7_MASK 0x80u   /*!<@brief Digital Filter Enable Mask for item 7. */
+#define PORT_DFER_DFE_8_MASK 0x0100u /*!<@brief Digital Filter Enable Mask for item 8. */
+#define PORT_DFER_DFE_9_MASK 0x0200u /*!<@brief Digital Filter Enable Mask for item 9. */
+
 /*! @name PORTE10 (number 4), D1
   @{ */
 

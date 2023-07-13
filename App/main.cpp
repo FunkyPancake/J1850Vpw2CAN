@@ -32,11 +32,11 @@
  * @file    main.cpp
  * @brief   Application entry point.
  */
-#include "App.h"
+#include "AppTasks.h"
+#include "FreeRTOS.h"
 #include "clock_config.h"
 #include "peripherals.h"
 #include "pin_mux.h"
-#include "FreeRTOS.h"
 #include "task.h"
 
 /*******************************************************************************
@@ -65,8 +65,8 @@ int main()
     BOARD_InitBootPins();
     BOARD_InitBootClocks();
     BOARD_InitBootPeripherals();
-    
-    App();
+
+    AppTasksInit();
     vTaskStartScheduler();
     /* Enter an infinite loop, just incrementing a counter. */
     
