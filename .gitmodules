@@ -1,0 +1,3 @@
+[submodule "KeCommon"]
+	path = KeCommon
+	url = git@github.com:FunkyPancake/KeCommon.git
