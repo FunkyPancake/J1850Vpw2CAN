@@ -19,6 +19,8 @@
 #include "fsl_ftm.h"
 #include "fsl_lpuart.h"
 #include "fsl_lpuart_edma.h"
+#include "fsl_gpio.h"
+#include "fsl_port.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -90,6 +92,16 @@ extern "C" {
 #define LPUART0_TX_DMAMUX_BASEADDR DMAMUX
 /* Used DMA device. */
 #define LPUART0_TX_DMA_BASEADDR DMA0
+/* Alias for GPIOD peripheral */
+#define GPIOD_GPIO GPIOD
+/* Alias for PORTD */
+#define GPIOD_PORT PORTD
+/* GPIOD interrupt vector ID (number). */
+#define GPIOD_IRQN PORTD_IRQn
+/* GPIOD interrupt vector priority. */
+#define GPIOD_IRQ_PRIORITY 2
+/* GPIOD interrupt handler identifier. */
+#define GPIOD_IRQHANDLER PORTD_IRQHandler
 
 /***********************************************************************************************************************
  * Global variables

@@ -75,6 +75,11 @@
                         <data>true</data>
                      </feature>
                   </dependency>
+                  <dependency resourceType="Peripheral" resourceId="GPIOD" description="Peripheral GPIOD is not initialized" problem_level="1" source="Pins:BOARD_InitPins">
+                     <feature name="initialized" evaluation="equal">
+                        <data>true</data>
+                     </feature>
+                  </dependency>
                   <dependency resourceType="Peripheral" resourceId="LPUART0" description="Peripheral LPUART0 is not initialized" problem_level="1" source="Pins:BOARD_InitPins">
                      <feature name="initialized" evaluation="equal">
                         <data>true</data>
@@ -167,6 +172,7 @@
                      <pin_features>
                         <pin_feature name="identifier" value="HIP_IDLE"/>
                         <pin_feature name="direction" value="INPUT"/>
+                        <pin_feature name="gpio_interrupt" value="kPORT_InterruptFallingEdge"/>
                      </pin_features>
                   </pin>
                   <pin peripheral="LPUART0" signal="TX" pin_num="47" pin_signal="ADC1_SE1/PTA3/FTM3_CH1/LPI2C0_SCL/EWM_IN/LPUART0_TX"/>
@@ -323,6 +329,16 @@
                   <data type="Version">2.3.0</data>
                </feature>
             </dependency>
+            <dependency resourceType="SWComponent" resourceId="platform.drivers.gpio" description="GPIO Driver not found in the toolchain/IDE project. Project will not compile!" problem_level="2" source="Peripherals">
+               <feature name="enabled" evaluation="equal">
+                  <data type="Boolean">true</data>
+               </feature>
+            </dependency>
+            <dependency resourceType="SWComponent" resourceId="platform.drivers.gpio" description="Unsupported version of the GPIO Driver in the toolchain/IDE project. Required: ${required_value}, actual: ${actual_value}. Project might not compile correctly." problem_level="1" source="Peripherals">
+               <feature name="version" evaluation="greaterOrEqual">
+                  <data type="Version">2.4.0</data>
+               </feature>
+            </dependency>
          </dependencies>
          <generated_project_files>
             <file path="board/peripherals.c" update_enabled="true"/>
@@ -426,12 +442,12 @@
                         <data type="Frequency" unit="Hz">0</data>
                      </feature>
                   </dependency>
-                  <dependency resourceType="PeripheralUnifiedSignal" resourceId="FTM1.tmr_ch.0" description="Signal CH0 of peripheral FTM1 is not routed" problem_level="1" source="Peripherals:BOARD_InitPeripherals">
+                  <dependency resourceType="PeripheralUnifiedSignal" resourceId="FTM1.tmr_ch.1" description="Signal CH1 of peripheral FTM1 is not routed" problem_level="1" source="Peripherals:BOARD_InitPeripherals">
                      <feature name="routed" evaluation="equal">
                         <data type="Boolean">true</data>
                      </feature>
                   </dependency>
-                  <dependency resourceType="PeripheralUnifiedSignal" resourceId="FTM1.tmr_ch.0" description="Direction of signal CH0 of peripheral FTM1 is set as input but it will be used as output" problem_level="1" source="Peripherals:BOARD_InitPeripherals">
+                  <dependency resourceType="PeripheralUnifiedSignal" resourceId="FTM1.tmr_ch.1" description="Direction of signal CH1 of peripheral FTM1 is set as input but it will be used as output" problem_level="1" source="Peripherals:BOARD_InitPeripherals">
                      <feature name="direction" evaluation="notEqualIgnoreCase">
                         <data type="String">INPUT</data>
                      </feature>
@@ -471,6 +487,16 @@
                         <data type="Version">2.0.2</data>
                      </feature>
                   </dependency>
+                  <dependency resourceType="SWComponent" resourceId="platform.drivers.port" description="The fsl_port driver is missing in the project  (required for the GPIO driver)." problem_level="2" source="Peripherals:BOARD_InitPeripherals">
+                     <feature name="enabled" evaluation="equal">
+                        <data type="Boolean">true</data>
+                     </feature>
+                  </dependency>
+                  <dependency resourceType="SWComponent" resourceId="platform.drivers.port" description="The compatible version of the fsl_port driver is not available in the project  (required for the GPIO driver)." problem_level="1" source="Peripherals:BOARD_InitPeripherals">
+                     <feature name="version" evaluation="compatible">
+                        <data type="Version">2.1.0</data>
+                     </feature>
+                  </dependency>
                </dependencies>
                <instances>
                   <instance name="NVIC" uuid="f3e24020-dea1-4217-ab22-02c560191381" type="nvic" type_id="nvic_57b5eef3774cc60acaede6f5b8bddc67" mode="general" peripheral="NVIC" enabled="true" comment="" custom_name_enabled="false" editing_lock="false">
@@ -479,6 +505,7 @@
                            <struct name="0"/>
                            <struct name="1"/>
                            <struct name="2"/>
+                           <struct name="3"/>
                         </array>
                         <array name="interrupts"/>
                      </config_set>
@@ -758,7 +785,7 @@
                               <setting name="channelId" value=""/>
                               <setting name="edge_aligned_mode" value="kFTM_EdgeAlignedPwm"/>
                               <struct name="edge_aligned_pwm">
-                                 <setting name="chnlNumber" value="kFTM_Chnl_0"/>
+                                 <setting name="chnlNumber" value="kFTM_Chnl_1"/>
                                  <setting name="level" value="kFTM_HighTrue"/>
                                  <setting name="dutyValueStr" value="42"/>
                                  <setting name="enable_chan_irq" value="false"/>
@@ -850,6 +877,18 @@
                               <setting name="priority" value="0"/>
                               <setting name="enable_custom_name" value="false"/>
                            </struct>
+                        </struct>
+                     </config_set>
+                  </instance>
+                  <instance name="GPIOD" uuid="59412077-ab9a-46a4-aedf-d3f82903c0f1" type="gpio" type_id="gpio_5920c5e026e8e974e6dc54fbd5e22ad7" mode="GPIO" peripheral="GPIOD" enabled="true" comment="" custom_name_enabled="false" editing_lock="false">
+                     <config_set name="fsl_gpio">
+                        <setting name="enable_irq" value="true"/>
+                        <struct name="port_interrupt">
+                           <setting name="IRQn" value="PORTD_IRQn"/>
+                           <setting name="enable_interrrupt" value="enabled"/>
+                           <setting name="enable_priority" value="true"/>
+                           <setting name="priority" value="2"/>
+                           <setting name="enable_custom_name" value="false"/>
                         </struct>
                      </config_set>
                   </instance>

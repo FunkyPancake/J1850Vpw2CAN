@@ -9,10 +9,13 @@ target_sources(${TARGET_NAME}
         AppTasks.cpp
         main.cpp
         GearSelector/GearSelector.cpp
+        Gateway/Gateway.cpp
         )
 target_include_directories(${TARGET_NAME}
         PUBLIC
-        GearSelector)
+        GearSelector
+        Gateway
+        )
 
 
 

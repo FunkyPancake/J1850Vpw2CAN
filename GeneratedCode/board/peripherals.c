@@ -117,6 +117,7 @@ instance:
       - 0: []
       - 1: []
       - 2: []
+      - 3: []
     - interrupts: []
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS **********/
 /* clang-format on */
@@ -492,7 +493,7 @@ instance:
         - channelId: ''
         - edge_aligned_mode: 'kFTM_EdgeAlignedPwm'
         - edge_aligned_pwm:
-          - chnlNumber: 'kFTM_Chnl_0'
+          - chnlNumber: 'kFTM_Chnl_1'
           - level: 'kFTM_HighTrue'
           - dutyValueStr: '42'
           - enable_chan_irq: 'false'
@@ -515,7 +516,7 @@ const ftm_config_t FTM1_config = {
 
 const ftm_chnl_pwm_config_param_t FTM1_pwmSignalParams[] = { 
   {
-    .chnlNumber = kFTM_Chnl_0,
+    .chnlNumber = kFTM_Chnl_1,
     .level = kFTM_HighTrue,
     .dutyValue = 42,
   }
@@ -636,6 +637,39 @@ static void LPUART0_init(void) {
 }
 
 /***********************************************************************************************************************
+ * GPIOD initialization code
+ **********************************************************************************************************************/
+/* clang-format off */
+/* TEXT BELOW IS USED AS SETTING FOR TOOLS *************************************
+instance:
+- name: 'GPIOD'
+- type: 'gpio'
+- mode: 'GPIO'
+- custom_name_enabled: 'false'
+- type_id: 'gpio_5920c5e026e8e974e6dc54fbd5e22ad7'
+- functional_group: 'BOARD_InitPeripherals'
+- peripheral: 'GPIOD'
+- config_sets:
+  - fsl_gpio:
+    - enable_irq: 'true'
+    - port_interrupt:
+      - IRQn: 'PORTD_IRQn'
+      - enable_interrrupt: 'enabled'
+      - enable_priority: 'true'
+      - priority: '2'
+      - enable_custom_name: 'false'
+ * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS **********/
+/* clang-format on */
+
+static void GPIOD_init(void) {
+  /* Make sure, the clock gate for port D is enabled (e. g. in pin_mux.c) */
+  /* Interrupt vector PORTD_IRQn priority settings in the NVIC. */
+  NVIC_SetPriority(GPIOD_IRQN, GPIOD_IRQ_PRIORITY);
+  /* Enable interrupt PORTD_IRQn request in the NVIC. */
+  EnableIRQ(GPIOD_IRQN);
+}
+
+/***********************************************************************************************************************
  * Initialization functions
  **********************************************************************************************************************/
 void BOARD_InitPeripherals(void)
@@ -650,6 +684,7 @@ void BOARD_InitPeripherals(void)
   LPSPI1_init();
   FTM1_init();
   LPUART0_init();
+  GPIOD_init();
 }
 
 /***********************************************************************************************************************

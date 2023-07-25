@@ -4,7 +4,7 @@ set(TARGET_NAME KeWjGwTcu)
 project(${TARGET_NAME} LANGUAGES CXX C)
 
 set(CMAKE_CXX_STANDARD 17)
-
+set(MCU CPU_MKE18F512VLH16)
 if (CMAKE_BUILD_TYPE MATCHES Debug)
 
     add_executable(${TARGET_NAME}
@@ -27,8 +27,8 @@ if (CMAKE_BUILD_TYPE MATCHES Debug)
 
     target_compile_definitions(${TARGET_NAME}
             PRIVATE
-            CPU_MKE16F256VLH16
-            CPU_MKE16F256VLH16_cm4
+            ${MCU}
+            ${MCU}_cm4
             FSL_RTOS_FREE_RTOS
             SDK_OS_FREE_RTOS
             SDK_DEBUGCONSOLE=1
@@ -38,7 +38,7 @@ if (CMAKE_BUILD_TYPE MATCHES Debug)
             __NEWLIB__
             )
     target_link_directories(${TARGET_NAME} PRIVATE KeCommon/nxp/linker)
-    target_link_options(${TARGET_NAME} PRIVATE -Wl,-print-memory-usage,--sort-section=alignment,--gc-sections,--cref,-M=${TARGET_NAME}.map -nostdlib -flto -O1 -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -T Ke16F256.ld)
+    target_link_options(${TARGET_NAME} PRIVATE -Wl,-print-memory-usage,--sort-section=alignment,--gc-sections,--cref,-M=${TARGET_NAME}.map -nostdlib -flto -O1 -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -T MKE18F16.ld)
 
     set_target_properties(${TARGET_NAME} PROPERTIES OUTPUT_NAME ${TARGET_NAME}.elf)
     #    set_target_properties(${TARGET_NAME}

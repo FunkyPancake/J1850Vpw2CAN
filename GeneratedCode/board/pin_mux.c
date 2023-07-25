@@ -72,7 +72,7 @@ BOARD_InitPins:
   - {pin_num: '36', peripheral: GPIOC, signal: 'GPIO, 8', pin_signal: ADC2_SE14/PTC8/LPUART1_RX/FTM1_FLT0/LPUART0_CTS, direction: INPUT, pull_enable: enable, digital_filter: enable}
   - {pin_num: '37', peripheral: GPIOA, signal: 'GPIO, 7', pin_signal: ADC0_SE3/ACMP1_IN1/PTA7/FTM0_FLT2/RTC_CLKIN/LPUART1_RTS, direction: INPUT, pull_enable: enable,
     digital_filter: enable}
-  - {pin_num: '44', peripheral: GPIOD, signal: 'GPIO, 4', pin_signal: ADC1_SE6/ACMP1_IN6/PTD4/FTM0_FLT3/FTM3_FLT3, identifier: HIP_IDLE, direction: INPUT}
+  - {pin_num: '44', peripheral: GPIOD, signal: 'GPIO, 4', pin_signal: ADC1_SE6/ACMP1_IN6/PTD4/FTM0_FLT3/FTM3_FLT3, identifier: HIP_IDLE, direction: INPUT, gpio_interrupt: kPORT_InterruptFallingEdge}
   - {pin_num: '47', peripheral: LPUART0, signal: TX, pin_signal: ADC1_SE1/PTA3/FTM3_CH1/LPI2C0_SCL/EWM_IN/LPUART0_TX}
   - {pin_num: '48', peripheral: LPUART0, signal: RX, pin_signal: ADC1_SE0/PTA2/FTM3_CH0/LPI2C0_SDA/EWM_OUT_b/LPUART0_RX}
   - {pin_num: '49', peripheral: FTM1, signal: 'CH, 1', pin_signal: ADC0_SE1/ACMP0_IN1/PTA1/FTM1_CH1/LPI2C0_SDAS/FXIO_D3/FTM1_QD_PHA/LPUART0_RTS/TRGMUX_OUT0, direction: OUTPUT}
@@ -259,6 +259,9 @@ void BOARD_InitPins(void)
 
     /* PORTD4 (pin 44) is configured as PTD4 */
     PORT_SetPinMux(BOARD_INITPINS_HIP_IDLE_PORT, BOARD_INITPINS_HIP_IDLE_PIN, kPORT_MuxAsGpio);
+
+    /* Interrupt configuration on PORTD4 (pin 44): Interrupt on falling edge */
+    PORT_SetPinInterruptConfig(BOARD_INITPINS_HIP_IDLE_PORT, BOARD_INITPINS_HIP_IDLE_PIN, kPORT_InterruptFallingEdge);
 
     /* PORTE10 (pin 4) is configured as PTE10 */
     PORT_SetPinMux(BOARD_INITPINS_D1_PORT, BOARD_INITPINS_D1_PIN, kPORT_MuxAsGpio);
