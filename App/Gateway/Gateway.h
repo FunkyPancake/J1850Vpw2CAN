@@ -6,8 +6,8 @@
 #define KEWJGWTCU_GATEWAY_H
 
 #include "CAN/ICan.h"
+#include "GearSelector.h"
 #include <memory>
-
 namespace App
 {
     //route signals from Powrtrain can to CANTCU
@@ -45,11 +45,17 @@ emu_data.CLT = int16_t(((data[7] << 8) + data[6]));
     class Gateway
     {
     private:
+        GearSelector::Gear _gear;
+        GearSelector::DriveMode _mode;
         std::shared_ptr<KeCommon::Bsw::Can::ICan> _can1, _can2;
+        KeCommon::Bsw::Can::CanFrame canFrame;
         void ToEmuCanStream();
+
     public:
         Gateway(std::shared_ptr<KeCommon::Bsw::Can::ICan> can1, std::shared_ptr<KeCommon::Bsw::Can::ICan> can2);
+        void SetGearAndMode(GearSelector::Gear gear, GearSelector::DriveMode mode);
         void MainFunction();
+        std::shared_ptr<KeCommon::Bsw::Can::ICan> GetCan(uint8_t busId);
     };
 
 }// namespace App

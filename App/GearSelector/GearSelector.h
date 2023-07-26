@@ -4,11 +4,31 @@
 
 #ifndef KEWJGWTCU_GEARSELECTOR_H
 #define KEWJGWTCU_GEARSELECTOR_H
-namespace App::GearSelector
+namespace App
 {
-    class GearSelectorPosition
+    class GearSelector
     {
+
     public:
+        enum class Gear
+        {
+            P,
+            R,
+            N,
+            D
+        };
+        enum class DriveMode
+        {
+            Eco,
+            Comfort,
+            Sport,
+            SportPlus
+        };
+        Gear GetGear();
+        DriveMode GetDriveMode();
+        void MainFunction();
+
+    private:
         enum class SelectorPosition
         {
             P = 0b110,
@@ -21,7 +41,9 @@ namespace App::GearSelector
             D1 = 0b101
         };
         SelectorPosition GetCurrentPosition();
+        Gear _gear;
+        DriveMode _driveMode;
     };
-}// namespace App::GearSelector
+}// namespace App
 
 #endif//KEWJGWTCU_GEARSELECTOR_H

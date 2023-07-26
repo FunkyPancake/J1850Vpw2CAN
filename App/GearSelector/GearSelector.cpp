@@ -5,43 +5,56 @@
 #include "GearSelector.h"
 #include "fsl_gpio.h"
 #include "pin_mux.h"
-App::GearSelector::GearSelectorPosition::SelectorPosition App::GearSelector::GearSelectorPosition::GetCurrentPosition()
+using namespace App;
+
+App::GearSelector::SelectorPosition App::GearSelector::GetCurrentPosition()
 {
     auto c2 = GPIO_PinRead(BOARD_INITPINS_C2_GPIO, BOARD_INITPINS_C2_PIN);
     auto c3 = GPIO_PinRead(BOARD_INITPINS_C3_GPIO, BOARD_INITPINS_C3_PIN);
     auto c4 = GPIO_PinRead(BOARD_INITPINS_C4_GPIO, BOARD_INITPINS_C4_PIN);
     auto selectorPosition = static_cast<SelectorPosition>(c4 + (c3 << 1) + (c2 << 2));
-    switch (selectorPosition) {
+    return selectorPosition;
+}
+App::GearSelector::Gear App::GearSelector::GetGear()
+{
+    return _gear;
+}
+App::GearSelector::DriveMode App::GearSelector::GetDriveMode()
+{
+    return _driveMode;
+}
+void App::GearSelector::MainFunction()
+{
+    auto position = GetCurrentPosition();
+    switch (position) {
         case SelectorPosition::P:
-            GPIO_PinWrite(BOARD_INITPINS_D1_GPIO, BOARD_INITPINS_D1_PIN, 0);
-            GPIO_PinWrite(BOARD_INITPINS_D2_GPIO, BOARD_INITPINS_D2_PIN, 1);
-            GPIO_PinWrite(BOARD_INITPINS_D3_GPIO, BOARD_INITPINS_D3_PIN, 1);
-            GPIO_PinWrite(BOARD_INITPINS_D4_GPIO, BOARD_INITPINS_D4_PIN, 1);
-            break;
-        case SelectorPosition::R:
-            GPIO_PinWrite(BOARD_INITPINS_D1_GPIO, BOARD_INITPINS_D1_PIN, 1);
-            GPIO_PinWrite(BOARD_INITPINS_D2_GPIO, BOARD_INITPINS_D2_PIN, 0);
-            GPIO_PinWrite(BOARD_INITPINS_D3_GPIO, BOARD_INITPINS_D3_PIN, 1);
-            GPIO_PinWrite(BOARD_INITPINS_D4_GPIO, BOARD_INITPINS_D4_PIN, 1);
+            _gear = Gear::P;
+            _driveMode = DriveMode::Eco;
             break;
         case SelectorPosition::N:
-            GPIO_PinWrite(BOARD_INITPINS_D1_GPIO, BOARD_INITPINS_D1_PIN, 1);
-            GPIO_PinWrite(BOARD_INITPINS_D2_GPIO, BOARD_INITPINS_D2_PIN, 1);
-            GPIO_PinWrite(BOARD_INITPINS_D3_GPIO, BOARD_INITPINS_D3_PIN, 0);
-            GPIO_PinWrite(BOARD_INITPINS_D4_GPIO, BOARD_INITPINS_D4_PIN, 1);
+            _gear = Gear::N;
+            _driveMode = DriveMode::Eco;
             break;
         case SelectorPosition::D:
-            GPIO_PinWrite(BOARD_INITPINS_D1_GPIO, BOARD_INITPINS_D1_PIN, 1);
-            GPIO_PinWrite(BOARD_INITPINS_D2_GPIO, BOARD_INITPINS_D2_PIN, 1);
-            GPIO_PinWrite(BOARD_INITPINS_D3_GPIO, BOARD_INITPINS_D3_PIN, 1);
-            GPIO_PinWrite(BOARD_INITPINS_D4_GPIO, BOARD_INITPINS_D4_PIN, 0);
+            _gear = Gear::D;
+            _driveMode = DriveMode::Eco;
+            break;
+        case SelectorPosition::D1:
+            _gear = Gear::D;
+            _driveMode = DriveMode::Comfort;
+            break;
+        case SelectorPosition::D2:
+            _gear = Gear::D;
+            _driveMode = DriveMode::Sport;
+            break;
+        case SelectorPosition::D3:
+        case SelectorPosition::D4:
+            _gear = Gear::D;
+            _driveMode = DriveMode::SportPlus;
             break;
         default:
-            GPIO_PinWrite(BOARD_INITPINS_D1_GPIO, BOARD_INITPINS_D1_PIN, 1);
-            GPIO_PinWrite(BOARD_INITPINS_D2_GPIO, BOARD_INITPINS_D2_PIN, 1);
-            GPIO_PinWrite(BOARD_INITPINS_D3_GPIO, BOARD_INITPINS_D3_PIN, 1);
-            GPIO_PinWrite(BOARD_INITPINS_D4_GPIO, BOARD_INITPINS_D4_PIN, 1);
-            break;
+            _gear = Gear::N;
+            _driveMode = DriveMode::Eco;
+            //add error to diag module
     }
-    return selectorPosition;
 }
