@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2023, FunkyPuncake
+ *    All rights reserved
+ *    This file is part of the KeWjGwTcu. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the GPL license. You should have received
+ *    a copy of the license with this file.
+ *
+ */
+
 //
 // Created by PC on 12.07.2023.
 //
@@ -41,20 +51,20 @@ void App::GearSelector::MainFunction()
             break;
         case SelectorPosition::D1:
             _gear = Gear::D;
-            _driveMode = DriveMode::Comfort;
+            _driveMode = DriveMode::Sport;
             break;
         case SelectorPosition::D2:
             _gear = Gear::D;
-            _driveMode = DriveMode::Sport;
+            _driveMode = DriveMode::SportPlus;
             break;
         case SelectorPosition::D3:
         case SelectorPosition::D4:
             _gear = Gear::D;
-            _driveMode = DriveMode::SportPlus;
+            _driveMode = DriveMode::Comfort;
             break;
         default:
             _gear = Gear::N;
             _driveMode = DriveMode::Eco;
-            //add error to diag module
+            //TODO: add error notification to diag module
     }
 }
