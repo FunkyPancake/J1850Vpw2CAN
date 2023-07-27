@@ -23,11 +23,11 @@
 /* clang-format off */
 /* TEXT BELOW IS USED AS SETTING FOR TOOLS *************************************
 !!GlobalInfo
-product: Clocks v10.0
+product: Clocks v11.0
 processor: MKE18F256xxx16
 package_id: MKE18F256VLH16
 mcu_data: ksdk2_0
-processor_version: 12.0.0
+processor_version: 13.0.1
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS **********/
 /* clang-format on */
 

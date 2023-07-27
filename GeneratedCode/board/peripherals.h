@@ -9,17 +9,18 @@
 /***********************************************************************************************************************
  * Included files
  **********************************************************************************************************************/
-#include "fsl_edma.h"
-#include "fsl_dmamux.h"
-#include "fsl_common.h"
-#include "fsl_flexcan.h"
 #include "fsl_clock.h"
+#include "fsl_common.h"
+#include "fsl_dmamux.h"
+#include "fsl_edma.h"
+#include "fsl_ewm.h"
+#include "fsl_flexcan.h"
+#include "fsl_ftm.h"
+#include "fsl_gpio.h"
 #include "fsl_lpspi.h"
 #include "fsl_lpspi_freertos.h"
-#include "fsl_ftm.h"
 #include "fsl_lpuart.h"
 #include "fsl_lpuart_edma.h"
-#include "fsl_gpio.h"
 #include "fsl_port.h"
 
 #if defined(__cplusplus)
@@ -55,17 +56,6 @@ extern "C" {
 #define LPSPI0_IRQ_PRIORITY 5
 /* Transfer buffer size */
 #define LPSPI0_BUFFER_SIZE 10
-/* BOARD_InitPeripherals defines for LPSPI1 */
-/* Definition of peripheral ID */
-#define LPSPI1_PERIPHERAL LPSPI1
-/* Definition of clock source */
-#define LPSPI1_CLOCK_FREQ 10500000UL
-/* LPSPI1 interrupt vector ID (number). */
-#define LPSPI1_IRQN LPSPI1_IRQn
-/* LPSPI1 interrupt vector priority. */
-#define LPSPI1_IRQ_PRIORITY 5
-/* Transfer buffer size */
-#define LPSPI1_BUFFER_SIZE 10
 /* Definition of peripheral ID */
 #define FTM1_PERIPHERAL FTM1
 /* Definition of the clock source frequency */
@@ -102,6 +92,30 @@ extern "C" {
 #define GPIOD_IRQ_PRIORITY 2
 /* GPIOD interrupt handler identifier. */
 #define GPIOD_IRQHANDLER PORTD_IRQHandler
+/* FLEXIO_CTRL: DOZEN=0, DBGE=0, FASTACC=0, FLEXEN=0 */
+#define FLEXIO_CTRL_INIT 0x0U
+/* FLEXIO_SHIFTSIEN: SSIE=0 */
+#define FLEXIO_SHIFTSIEN_INIT 0x0U
+/* FLEXIO_SHIFTEIEN: SEIE=0 */
+#define FLEXIO_SHIFTEIEN_INIT 0x0U
+/* FLEXIO_TIMIEN: TEIE=0 */
+#define FLEXIO_TIMIEN_INIT 0x0U
+/* FLEXIO_SHIFTSDEN: SSDE=0 */
+#define FLEXIO_SHIFTSDEN_INIT 0x0U
+/* FLEXIO_SHIFTCTL0: TIMSEL=0, TIMPOL=0, PINCFG=0, PINSEL=0, PINPOL=0, SMOD=0 */
+#define FLEXIO_SHIFTCTL0_INIT 0x0U
+/* FLEXIO_SHIFTCFG0: INSRC=0, SSTOP=0, SSTART=0 */
+#define FLEXIO_SHIFTCFG0_INIT 0x0U
+/* FLEXIO_TIMCTL0: TRGSEL=0, TRGPOL=0, TRGSRC=0, PINCFG=0, PINSEL=0, PINPOL=0, TIMOD=0 */
+#define FLEXIO_TIMCTL0_INIT 0x0U
+/* FLEXIO_TIMCFG0: TIMOUT=0, TIMDEC=0, TIMRST=0, TIMDIS=0, TIMENA=0, TSTOP=0, TSTART=0 */
+#define FLEXIO_TIMCFG0_INIT 0x0U
+/* Alias for EWM peripheral */
+#define EWM_PERIPHERAL EWM
+/* Definition of peripheral ID */
+#define CAN1_PERIPHERAL CAN1
+/* Definition of the clock source frequency */
+#define CAN1_CLOCK_SOURCE 84000000UL
 
 /***********************************************************************************************************************
  * Global variables
@@ -114,14 +128,16 @@ extern flexcan_rx_fifo_config_t CAN0_rx_fifo_config;
 extern const lpspi_master_config_t LPSPI0_config;
 extern lpspi_transfer_t LPSPI0_transfer;
 extern lpspi_rtos_handle_t LPSPI0_handle;
-extern const lpspi_master_config_t LPSPI1_config;
-extern lpspi_transfer_t LPSPI1_transfer;
-extern lpspi_rtos_handle_t LPSPI1_handle;
 extern const ftm_config_t FTM1_config;
 extern const lpuart_config_t LPUART0_config;
 extern edma_handle_t LPUART0_RX_Handle;
 extern edma_handle_t LPUART0_TX_Handle;
 extern lpuart_edma_handle_t LPUART0_LPUART_eDMA_Handle;
+extern const ewm_config_t EWM_config;
+extern const flexcan_config_t CAN1_config;
+/* Message buffer 0 configuration structure */
+extern const flexcan_rx_mb_config_t CAN1_rx_mb_config_0;
+extern flexcan_rx_fifo_config_t CAN1_rx_fifo_config;
 
 /***********************************************************************************************************************
  * Initialization functions

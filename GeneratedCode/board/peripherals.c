@@ -6,11 +6,11 @@
 /* clang-format off */
 /* TEXT BELOW IS USED AS SETTING FOR TOOLS *************************************
 !!GlobalInfo
-product: Peripherals v11.0
+product: Peripherals v12.0
 processor: MKE18F256xxx16
 package_id: MKE18F256VLH16
 mcu_data: ksdk2_0
-processor_version: 12.0.0
+processor_version: 13.0.1
 functionalGroups:
 - name: BOARD_InitPeripherals
   UUID: 07f5b299-ddc0-4be9-99fd-d197ad5ead68
@@ -117,7 +117,6 @@ instance:
       - 0: []
       - 1: []
       - 2: []
-      - 3: []
     - interrupts: []
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS **********/
 /* clang-format on */
@@ -350,85 +349,6 @@ static void LPSPI0_init(void) {
 }
 
 /***********************************************************************************************************************
- * LPSPI1 initialization code
- **********************************************************************************************************************/
-/* clang-format off */
-/* TEXT BELOW IS USED AS SETTING FOR TOOLS *************************************
-instance:
-- name: 'LPSPI1'
-- type: 'lpspi'
-- mode: 'freertos'
-- custom_name_enabled: 'false'
-- type_id: 'lpspi_6e21a1e0a09f0a012d683c4f91752db8'
-- functional_group: 'BOARD_InitPeripherals'
-- peripheral: 'LPSPI1'
-- config_sets:
-  - transfer:
-    - config:
-      - transmitBuffer:
-        - init: 'false'
-      - receiveBuffer:
-        - init: 'false'
-      - dataSize: '10'
-      - enableTransferStruct: 'defined'
-      - flags: ''
-  - main:
-    - mode: 'kLPSPI_Master'
-    - clockSource: 'LpspiClock'
-    - clockSourceFreq: 'BOARD_BootClockRUN'
-    - master:
-      - baudRate: '100000'
-      - bitsPerFrame: '8'
-      - cpol: 'kLPSPI_ClockPolarityActiveHigh'
-      - cpha: 'kLPSPI_ClockPhaseSecondEdge'
-      - direction: 'kLPSPI_MsbFirst'
-      - pcsToSckDelayInNanoSec: '1000'
-      - lastSckToPcsDelayInNanoSec: '1000'
-      - betweenTransferDelayInNanoSec: '1000'
-      - whichPcs: 'kLPSPI_Pcs0'
-      - pcsActiveHighOrLow: 'kLPSPI_PcsActiveLow'
-      - pinCfg: 'kLPSPI_SdiInSdoOut'
-      - dataOutConfig: 'kLpspiDataOutRetained'
-    - allPcsPolarityEnable: 'false'
-    - allPcsPolarity:
-      - kLPSPI_Pcs1Active: 'kLPSPI_PcsActiveLow'
-      - kLPSPI_Pcs2Active: 'kLPSPI_PcsActiveLow'
-      - kLPSPI_Pcs3Active: 'kLPSPI_PcsActiveLow'
-    - interrupt_priority:
-      - IRQn: 'LPSPI1_IRQn'
-      - enable_priority: 'true'
-      - priority: '5'
- * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS **********/
-/* clang-format on */
-const lpspi_master_config_t LPSPI1_config = {
-  .baudRate = 100000UL,
-  .bitsPerFrame = 8UL,
-  .cpol = kLPSPI_ClockPolarityActiveHigh,
-  .cpha = kLPSPI_ClockPhaseSecondEdge,
-  .direction = kLPSPI_MsbFirst,
-  .pcsToSckDelayInNanoSec = 1000UL,
-  .lastSckToPcsDelayInNanoSec = 1000UL,
-  .betweenTransferDelayInNanoSec = 1000UL,
-  .whichPcs = kLPSPI_Pcs0,
-  .pcsActiveHighOrLow = kLPSPI_PcsActiveLow,
-  .pinCfg = kLPSPI_SdiInSdoOut,
-  .dataOutConfig = kLpspiDataOutRetained
-};
-lpspi_transfer_t LPSPI1_transfer = {
-  .txData = NULL,
-  .rxData = NULL,
-  .dataSize = 10,
-  .configFlags = 0
-};
-lpspi_rtos_handle_t LPSPI1_handle;
-
-static void LPSPI1_init(void) {
-  /* Interrupt vector LPSPI1_IRQn priority settings in the NVIC. */
-  NVIC_SetPriority(LPSPI1_IRQN, LPSPI1_IRQ_PRIORITY);
-  LPSPI_RTOS_Init(&LPSPI1_handle, LPSPI1_PERIPHERAL, &LPSPI1_config, LPSPI1_CLOCK_FREQ);
-}
-
-/***********************************************************************************************************************
  * FTM1 initialization code
  **********************************************************************************************************************/
 /* clang-format off */
@@ -546,7 +466,7 @@ instance:
   - lpuartConfig_t:
     - lpuartConfig:
       - clockSource: 'LpuartClock'
-      - lpuartSrcClkFreq: 'BOARD_BootClockRUN'
+      - lpuartSrcClkFreq: 'ClocksTool_DefaultInit'
       - baudRate_Bps: '115200'
       - parityMode: 'kLPUART_ParityDisabled'
       - dataBitsCount: 'kLPUART_EightDataBits'
@@ -567,7 +487,7 @@ instance:
     - edma_channels:
       - enable_rx_edma_channel: 'true'
       - edma_rx_channel:
-        - uid: '0'
+        - uid: '1690452817720'
         - eDMAn: '0'
         - eDMA_source: 'kDmaRequestMux0LPUART0Rx'
         - enableTriggerInput: 'false'
@@ -579,7 +499,7 @@ instance:
         - enable_custom_name: 'false'
       - enable_tx_edma_channel: 'true'
       - edma_tx_channel:
-        - uid: '0'
+        - uid: '1690452817729'
         - eDMAn: '1'
         - eDMA_source: 'kDmaRequestMux0LPUART0Tx'
         - enableTriggerInput: 'false'
@@ -670,10 +590,461 @@ static void GPIOD_init(void) {
 }
 
 /***********************************************************************************************************************
+ * FLEXIO initialization code
+ **********************************************************************************************************************/
+/* clang-format off */
+/* TEXT BELOW IS USED AS SETTING FOR TOOLS *************************************
+instance:
+- name: 'FLEXIO'
+- type: 'flexio_reg'
+- mode: 'general'
+- custom_name_enabled: 'false'
+- type_id: 'flexio_reg_89d6028d4b270bbbe33e462b37ac38a8'
+- functional_group: 'BOARD_InitPeripherals'
+- peripheral: 'FLEXIO'
+- config_sets:
+  - generalConfig:
+    - clkConfig:
+      - clockSource: 'FlexIoClock'
+      - clockSourceFreq: 'ClocksTool_DefaultInit'
+    - flexioConfig:
+      - FLEXEN: 'false'
+      - FASTACC: 'false'
+      - DBGE: 'false'
+      - DOZEN: 'true'
+    - tabs:
+      - timers_tab:
+        - timers:
+          - 0:
+            - uid: '1690452927322'
+            - id: 'TIMER0'
+            - number: '0'
+            - description: ''
+            - TIMOD: '0'
+            - TSTART: '0'
+            - TSTOP: '0'
+            - TRGSRC: '0'
+            - TRGSEL: '0'
+            - TRGPOL: '0'
+            - PINSEL: '0'
+            - PINCFG: '0'
+            - PINPOL: '0'
+            - TIMENA: '0'
+            - TIMDIS: '0'
+            - TIMRST: '0'
+            - TIMOUT: '0'
+            - TIMDEC: '0'
+            - timerClockFreqCustomStr: ''
+            - TEIE: 'false'
+            - params: []
+      - shifters_tab:
+        - shifters:
+          - 0:
+            - uid: '1690452927321'
+            - id: 'SHIFTER0'
+            - number: '0'
+            - description: ''
+            - SMOD: '0'
+            - SSTART: '0'
+            - SSTOP: '0'
+            - TIMSEL: '1690452927322'
+            - TIMPOL: '0'
+            - INSRC: '0'
+            - PINSEL: '0'
+            - PINCFG: '0'
+            - PINPOL: '0'
+            - SSIE: 'false'
+            - SEIE: 'false'
+            - SSDE: 'false'
+            - params: []
+      - pins_overview:
+        - 0: []
+        - 1: []
+        - 2: []
+        - 3: []
+        - 4: []
+        - 5: []
+        - 6: []
+        - 7: []
+    - enable_interrupt: 'false'
+    - interrupt:
+      - IRQn: 'FLEXIO_IRQn'
+      - enable_interrrupt: 'enabled'
+      - enable_priority: 'false'
+      - priority: '0'
+      - enable_custom_name: 'false'
+    - flexio_params: []
+    - quick_selection: 'default'
+ * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS **********/
+/* clang-format on */
+
+static void FLEXIO_init(void)
+{
+  /* FlexIO initialization */
+  /* Control register initialization, set software reset bit then clear it */
+  FLEXIO->CTRL |= FLEXIO_CTRL_SWRST_MASK;
+  FLEXIO->CTRL &= ~FLEXIO_CTRL_SWRST_MASK;
+
+  /* Write 1 to clear all shifter status */
+  FLEXIO->SHIFTSTAT = 0xFFFFFFFFU;
+
+  /* Write 1 to clear all shifter error */
+  FLEXIO->SHIFTERR = 0xFFFFFFFFU;
+
+  /* Write 1 to clear all timer status */
+  FLEXIO->TIMSTAT = 0xFFFFFFFFU;
+
+#ifdef FLEXIO_TRGSTAT_ETSF_MASK
+  /* Write 1 to clear all external trigger status */
+  FLEXIO->TRGSTAT = 0xFFFFFFFFU;
+#endif /* FLEXIO_TRGSTAT_ETSF_MASK */
+
+#ifdef FLEXIO_PINSTAT_PSF_MASK
+  /* Write 1 to clear all pin status */
+  FLEXIO->PINSTAT = 0xFFFFFFFFU;
+#endif /* FLEXIO_PINSTAT_PSF_MASK */
+
+  /* FlexIO shifter 0 initialization */
+  /* Shifter configuration register SHIFTCFGn initialization */
+#ifdef FLEXIO_SHIFTCFG0_INIT
+  FLEXIO->SHIFTCFG[0] = FLEXIO_SHIFTCFG0_INIT;
+#else
+  FLEXIO->SHIFTCFG[0] = 0x0U;
+#endif /* FLEXIO_SHIFTCFG0_INIT */
+
+  /* Shifter control register SHIFTCTLn initialization */
+#ifdef FLEXIO_SHIFTCTL0_INIT
+  FLEXIO->SHIFTCTL[0] = FLEXIO_SHIFTCTL0_INIT;
+#else
+  FLEXIO->SHIFTCTL[0] = 0x0U;
+#endif /* FLEXIO_SHIFTCTL0_INIT */
+
+  /* Clear the shifter buffer register */
+  (void) FLEXIO->SHIFTBUF[0];
+
+  /* FlexIO timer 0 initialization */
+  /* Timer control register configuration register TIMCTLn initialization */
+#ifdef FLEXIO_TIMCTL0_INIT
+  FLEXIO->TIMCTL[0] = FLEXIO_TIMCTL0_INIT;
+#else
+  FLEXIO->TIMCTL[0] = 0x0U;
+#endif /* FLEXIO_TIMCTL0_INIT */
+
+  /* Timer configuration register TIMCFGn initialization */
+#ifdef FLEXIO_TIMCFG0_INIT
+  FLEXIO->TIMCFG[0] = FLEXIO_TIMCFG0_INIT;
+#else
+  FLEXIO->TIMCFG[0] = 0x0U;
+#endif /* FLEXIO_TIMCFG0_INIT */
+
+  /* Timer compare register TIMCMPn initialization */
+#ifdef FLEXIO_TIMCMP0_INIT
+  FLEXIO->TIMCMP[0] = FLEXIO_TIMCMP0_INIT;
+#else
+  FLEXIO->TIMCMP[0] = 0x0U;
+#endif /* FLEXIO_TIMCMP0_INIT */
+
+  /* Shifter status interrupt register initialization */
+#ifdef FLEXIO_SHIFTSIEN_INIT
+  FLEXIO->SHIFTSIEN = FLEXIO_SHIFTSIEN_INIT;
+#else
+  FLEXIO->SHIFTSIEN = 0x0U;
+#endif /* FLEXIO_SHIFTSIEN_INIT */
+
+  /* Shifter error interrupt register initialization */
+#ifdef FLEXIO_SHIFTEIEN_INIT
+  FLEXIO->SHIFTEIEN = FLEXIO_SHIFTEIEN_INIT;
+#else
+  FLEXIO->SHIFTEIEN = 0x0U;
+#endif /* FLEXIO_SHIFTEIEN_INIT */
+
+  /* Timer interrupt register initialization */
+#ifdef FLEXIO_TIMIEN_INIT
+  FLEXIO->TIMIEN = FLEXIO_TIMIEN_INIT;
+#else
+  FLEXIO->TIMIEN = 0x0U;
+#endif /* FLEXIO_TIMIEN_INIT */
+
+  /* Shifter status DMA register initialization */
+#ifdef FLEXIO_SHIFTSDEN_INIT
+  FLEXIO->SHIFTSDEN = FLEXIO_SHIFTSDEN_INIT;
+#else
+  FLEXIO->SHIFTSDEN = 0x0U;
+#endif /* FLEXIO_SHIFTSDEN_INIT */
+
+#ifdef FLEXIO_TIMERSDEN_TSDE_MASK
+  /* Timer status DMA register initialization */
+    #ifdef FLEXIO_TIMERSDEN_INIT
+  FLEXIO->TIMERSDEN = FLEXIO_TIMERSDEN_INIT;
+    #else
+  FLEXIO->TIMERSDEN = 0x0U;
+    #endif /* FLEXIO_TIMERSDEN_INIT */
+#endif     /* FLEXIO_TIMERSDEN_TSDE_MASK */
+
+#ifdef FLEXIO_SHIFTSTATE_STATE_MASK
+  /* Shifter state register initialization */
+    #ifdef FLEXIO_SHIFTSTATE_INIT
+  FLEXIO->SHIFTSTATE = FLEXIO_SHIFTSTATE_INIT;
+    #else
+  FLEXIO->SHIFTSTATE = 0x0U;
+    #endif /* FLEXIO_SHIFTSTATE_INIT */
+#endif     /* FLEXIO_SHIFTSTATE_STATE_MASK */
+
+#ifdef FLEXIO_TRIGIEN_TRIE_MASK
+  /* Trigger interrupt enable register initialization */
+    #ifdef FLEXIO_TRIGIEN_INIT
+  FLEXIO->TRIGIEN = FLEXIO_TRIGIEN_INIT;
+    #else
+  FLEXIO->TRIGIEN = 0x0U;
+    #endif /* FLEXIO_TRIGIEN_INIT */
+#endif     /* FLEXIO_TRIGIEN_TRIE_MASK */
+
+#ifdef FLEXIO_PINIEN_PSIE_MASK
+  /* Pin interrupt enable register */
+    #ifdef FLEXIO_PINIEN_INIT
+  FLEXIO->PINIEN = FLEXIO_PINIEN_INIT;
+    #else
+  FLEXIO->PINIEN = 0x0U;
+    #endif /* FLEXIO_PINIEN_INIT */
+#endif     /* FLEXIO_PINIEN_PSIE_MASK */
+
+#ifdef FLEXIO_PINREN_PRE_MASK
+  /* Pin rising edge enable register initialization */
+    #ifdef FLEXIO_PINREN_INIT
+  FLEXIO->PINREN = FLEXIO_PINREN_INIT;
+    #else
+  FLEXIO->PINREN = 0x0U;
+    #endif /* FLEXIO_PINREN_INIT */
+#endif     /* FLEXIO_PINREN_PRE_MASK */
+
+#ifdef FLEXIO_PINFEN_PFE_MASK
+  /* Pin falling edge enable register initialization */
+    #ifdef FLEXIO_PINFEN_INIT
+  FLEXIO->PINFEN = FLEXIO_PINFEN_INIT;
+    #else
+  FLEXIO->PINFEN = 0x0U;
+    #endif /* FLEXIO_PINFEN_INIT */
+#endif     /* FLEXIO_PINFEN_PFE_MASK */
+
+#ifdef FLEXIO_PINOUTE_OUTE_MASK
+  /* Pin output enable register initialization */
+    #ifdef FLEXIO_PINOUTE_INIT
+  FLEXIO->PINOUTE = FLEXIO_PINOUTE_INIT;
+    #else
+  FLEXIO->PINOUTE = 0x0U;
+    #endif /* FLEXIO_PINOUTE_INIT */
+#endif     /* FLEXIO_PINOUTE_OUTE_MASK */
+
+#ifdef FLEXIO_PINOUTD_OUTD_MASK
+  /* Pin output register initialization */
+    #ifdef FLEXIO_PINOUTD_INIT
+  FLEXIO->PINOUTD = FLEXIO_PINOUTD_INIT;
+    #else
+  FLEXIO->PINOUTD = 0x0U;
+    #endif /* FLEXIO_PINOUTD_INIT */
+#endif     /* FLEXIO_PINOUTD_OUTD_MASK */
+
+#ifdef FLEXIO_CTRL_INIT
+  FLEXIO->CTRL = (FLEXIO_CTRL_INIT & ~FLEXIO_CTRL_SWRST_MASK);
+#else
+  FLEXIO->CTRL = 0x0U;
+#endif /* FLEXIO_CTRL_INIT */
+}
+
+/***********************************************************************************************************************
+ * EWM initialization code
+ **********************************************************************************************************************/
+/* clang-format off */
+/* TEXT BELOW IS USED AS SETTING FOR TOOLS *************************************
+instance:
+- name: 'EWM'
+- type: 'ewm'
+- mode: 'basic'
+- custom_name_enabled: 'false'
+- type_id: 'ewm_4792127f422c23cc3392826dba86b9fd'
+- functional_group: 'BOARD_InitPeripherals'
+- peripheral: 'EWM'
+- config_sets:
+  - fsl_ewm:
+    - ewmConfig:
+      - enableEwm: 'true'
+      - enableEwmInput: 'false'
+      - setInputAssertLogic: 'false'
+      - prescaler: '0'
+      - compareLowValue: '0'
+      - compareHighValue: '0xFF'
+    - ewmIntConfig:
+      - enableInterrupt: 'false'
+      - interrupt:
+        - IRQn: 'WDOG_EWM_IRQn'
+        - enable_interrrupt: 'enabled'
+        - enable_priority: 'false'
+        - priority: '0'
+        - enable_custom_name: 'false'
+    - quick_selection: 'default'
+ * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS **********/
+/* clang-format on */
+const ewm_config_t EWM_config = {
+    .enableEwm = true,
+    .enableEwmInput = false,
+    .setInputAssertLogic = false,
+    .prescaler = 0U,
+    .compareLowValue = 0U,
+    .compareHighValue = 0xFFU};
+
+static void EWM_init(void)
+{
+  /* Initialization function */
+  EWM_Init(EWM_PERIPHERAL, &EWM_config);
+}
+
+/***********************************************************************************************************************
+ * CAN1 initialization code
+ **********************************************************************************************************************/
+/* clang-format off */
+/* TEXT BELOW IS USED AS SETTING FOR TOOLS *************************************
+instance:
+- name: 'CAN1'
+- type: 'flexcan'
+- mode: 'interrupts'
+- custom_name_enabled: 'false'
+- type_id: 'flexcan_477f6be3462ee2961b67c0825ef495e2'
+- functional_group: 'BOARD_InitPeripherals'
+- peripheral: 'CAN1'
+- config_sets:
+  - interruptsCfg:
+    - messageBufferIrqs: '0'
+    - interruptsEnable: ''
+    - enable_ored_mb_irq: 'false'
+    - interrupt_ored_mb:
+      - IRQn: 'CAN1_ORed_Message_buffer_IRQn'
+      - enable_interrrupt: 'enabled'
+      - enable_priority: 'false'
+      - priority: '0'
+      - enable_custom_name: 'false'
+    - enable_busoff_irq: 'false'
+    - interrupt_busoff:
+      - IRQn: 'CAN1_ORed_IRQn'
+      - enable_interrrupt: 'enabled'
+      - enable_priority: 'false'
+      - priority: '0'
+      - enable_custom_name: 'false'
+    - enable_error_irq: 'false'
+    - interrupt_error:
+      - IRQn: 'CAN1_Error_IRQn'
+      - enable_interrrupt: 'enabled'
+      - enable_priority: 'false'
+      - priority: '0'
+      - enable_custom_name: 'false'
+    - enable_tx_irq: 'false'
+    - interrupt_tx:
+      - IRQn: 'CAN1_ORed_IRQn'
+      - enable_interrrupt: 'enabled'
+      - enable_priority: 'false'
+      - priority: '0'
+      - enable_custom_name: 'false'
+    - enable_rx_irq: 'false'
+    - interrupt_rx:
+      - IRQn: 'CAN1_ORed_IRQn'
+      - enable_interrrupt: 'enabled'
+      - enable_priority: 'false'
+      - priority: '0'
+      - enable_custom_name: 'false'
+    - enable_wakeup_irq: 'false'
+    - interrupt_wakeup:
+      - IRQn: 'CAN1_Wake_Up_IRQn'
+      - enable_interrrupt: 'enabled'
+      - enable_priority: 'false'
+      - priority: '0'
+      - enable_custom_name: 'false'
+  - fsl_flexcan:
+    - can_config:
+      - clockSource: 'kFLEXCAN_ClkSrcPeri'
+      - clockSourceFreq: 'ClocksTool_DefaultInit'
+      - wakeupSrc: 'kFLEXCAN_WakeupSrcUnfiltered'
+      - baudRate: '1000000'
+      - maxMbNum: '16'
+      - enableLoopBack: 'false'
+      - enableTimerSync: 'true'
+      - enableSelfWakeup: 'false'
+      - enableIndividMask: 'false'
+      - disableSelfReception: 'false'
+      - enableListenOnlyMode: 'false'
+      - timingConfig:
+        - propSeg: '2'
+        - phaseSeg1: '4'
+        - phaseSeg2: '3'
+        - rJumpwidth: '2'
+        - bitTime: []
+    - enableRxFIFO: 'false'
+    - rxFIFO:
+      - idFilterTable: ''
+      - idFilterNum: 'num0'
+      - idFilterType: 'kFLEXCAN_RxFifoFilterTypeA'
+      - priority: 'kFLEXCAN_RxFifoPrioLow'
+    - channels:
+      - 0:
+        - mbID: '0'
+        - mbType: 'mbRx'
+        - rxMb:
+          - id: '0'
+          - format: 'kFLEXCAN_FrameFormatStandard'
+          - type: 'kFLEXCAN_FrameTypeData'
+      - 1:
+        - mbID: '1'
+        - mbType: 'mbTx'
+        - rxMb:
+          - id: '0'
+          - format: 'kFLEXCAN_FrameFormatStandard'
+          - type: 'kFLEXCAN_FrameTypeData'
+ * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS **********/
+/* clang-format on */
+const flexcan_config_t CAN1_config = {
+    .clkSrc = kFLEXCAN_ClkSrc1,
+    .wakeupSrc = kFLEXCAN_WakeupSrcUnfiltered,
+    .baudRate = 1000000UL,
+    .maxMbNum = 16U,
+    .enableLoopBack = false,
+    .enableTimerSync = true,
+    .enableSelfWakeup = false,
+    .enableIndividMask = false,
+    .disableSelfReception = false,
+    .enableListenOnlyMode = false,
+    .timingConfig = {
+        .preDivider = 7,
+        .propSeg = 1,
+        .phaseSeg1 = 3,
+        .phaseSeg2 = 2,
+        .rJumpwidth = 1}};
+/* Message buffer 0 configuration structure */
+const flexcan_rx_mb_config_t CAN1_rx_mb_config_0 = {
+    .id = FLEXCAN_ID_STD(0UL),
+    .format = kFLEXCAN_FrameFormatStandard,
+    .type = kFLEXCAN_FrameTypeData};
+
+static void CAN1_init(void)
+{
+  FLEXCAN_Init(CAN1_PERIPHERAL, &CAN1_config, CAN1_CLOCK_SOURCE);
+
+  /* Message buffer 0 initialization */
+  FLEXCAN_SetRxMbConfig(CAN1_PERIPHERAL, 0, &CAN1_rx_mb_config_0, true);
+  /* Message buffer 1 initialization */
+  FLEXCAN_SetTxMbConfig(CAN1_PERIPHERAL, 1, true);
+}
+
+/***********************************************************************************************************************
  * Initialization functions
  **********************************************************************************************************************/
+static void BOARD_InitPeripherals_CommonPreInit(void)
+{
+  /* Enable clock gate of the FLEXIO peripheral. */
+  PCC->CLKCFG[90] |= PCC_CLKCFG_CGC_MASK;
+}
+
 void BOARD_InitPeripherals(void)
 {
+  /* Common pre-initialization */
+  BOARD_InitPeripherals_CommonPreInit();
   /* Global initialization */
   DMAMUX_Init(DMA_DMAMUX_BASEADDR);
   EDMA_Init(DMA_DMA_BASEADDR, &DMA_config);
@@ -681,10 +1052,12 @@ void BOARD_InitPeripherals(void)
   /* Initialize components */
   CAN0_init();
   LPSPI0_init();
-  LPSPI1_init();
   FTM1_init();
   LPUART0_init();
   GPIOD_init();
+  FLEXIO_init();
+  EWM_init();
+  CAN1_init();
 }
 
 /***********************************************************************************************************************
