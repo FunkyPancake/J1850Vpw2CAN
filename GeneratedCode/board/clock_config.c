@@ -113,25 +113,34 @@ outputs:
 - {id: Flash_clock.outFreq, value: 24 MHz}
 - {id: LPO1KCLK.outFreq, value: 1 kHz}
 - {id: LPO_clock.outFreq, value: 128 kHz}
+- {id: PCC.PCC_ADC0_CLK.outFreq, value: 12 MHz}
 - {id: PCC.PCC_FLEXIO_CLK.outFreq, value: 10.5 MHz}
+- {id: PCC.PCC_FTM0_CLK.outFreq, value: 21 MHz}
+- {id: PCC.PCC_FTM3_CLK.outFreq, value: 21 MHz}
 - {id: PCC.PCC_LPSPI0_CLK.outFreq, value: 10.5 MHz}
 - {id: PCC.PCC_LPSPI1_CLK.outFreq, value: 10.5 MHz}
 - {id: PCC.PCC_LPUART0_CLK.outFreq, value: 10.5 MHz}
+- {id: PLLDIV1_CLK.outFreq, value: 21 MHz}
 - {id: PLLDIV2_CLK.outFreq, value: 10.5 MHz}
 - {id: SIRC_CLK.outFreq, value: 8 MHz}
+- {id: SOSCDIV2_CLK.outFreq, value: 12 MHz}
 - {id: SOSC_CLK.outFreq, value: 12 MHz}
 - {id: System_clock.outFreq, value: 168 MHz}
 settings:
 - {id: SCGMode, value: SPLL}
 - {id: powerMode, value: HSRUN}
+- {id: PCC.PCC_ADC0_SEL.sel, value: SCG.SOSCDIV2_CLK}
 - {id: PCC.PCC_FLEXIO_SEL.sel, value: SCG.PLLDIV2_CLK}
 - {id: PCC.PCC_FTM0_SEL.sel, value: SCG.PLLDIV1_CLK}
+- {id: PCC.PCC_FTM3_SEL.sel, value: SCG.PLLDIV1_CLK}
 - {id: PCC.PCC_LPSPI0_SEL.sel, value: SCG.PLLDIV2_CLK}
 - {id: PCC.PCC_LPSPI1_SEL.sel, value: SCG.PLLDIV2_CLK}
 - {id: PCC.PCC_LPUART0_SEL.sel, value: SCG.PLLDIV2_CLK}
 - {id: SCG.DIVBUS.scale, value: '2'}
 - {id: SCG.DIVSLOW.scale, value: '7'}
 - {id: SCG.SCSSEL.sel, value: SCG.SPLL_DIV2_CLK}
+- {id: SCG.SOSCDIV2.scale, value: '1', locked: true}
+- {id: SCG.SPLLDIV1.scale, value: '8', locked: true}
 - {id: SCG.SPLLDIV2.scale, value: '16', locked: true}
 - {id: SCG.SPLL_mul.scale, value: '28'}
 - {id: SCG_SOSCCFG_OSC_MODE_CFG, value: ModeOscHighGain}
@@ -159,7 +168,7 @@ const scg_sosc_config_t g_scgSysOscConfig_BOARD_BootClockRUN =
         .enableMode = kSCG_SysOscEnable,          /* Enable System OSC clock */
         .monitorMode = kSCG_SysOscMonitorDisable, /* Monitor disabled */
         .div1 = kSCG_AsyncClkDisable,             /* System OSC Clock Divider 1: Clock output is disabled */
-        .div2 = kSCG_AsyncClkDisable,             /* System OSC Clock Divider 2: Clock output is disabled */
+        .div2 = kSCG_AsyncClkDivBy1,              /* System OSC Clock Divider 2: divided by 1 */
         .workMode = kSCG_SysOscModeOscHighGain,   /* Oscillator high gain */
     };
 const scg_sirc_config_t g_scgSircConfig_BOARD_BootClockRUN =
@@ -181,7 +190,7 @@ const scg_spll_config_t g_scgSysPllConfig_BOARD_BootClockRUN =
     {
         .enableMode = kSCG_SysPllEnable,          /* Enable SPLL clock */
         .monitorMode = kSCG_SysPllMonitorDisable, /* Monitor disabled */
-        .div1 = kSCG_AsyncClkDisable,             /* System PLL Clock Divider 1: Clock output is disabled */
+        .div1 = kSCG_AsyncClkDivBy8,              /* System PLL Clock Divider 1: divided by 8 */
         .div2 = kSCG_AsyncClkDivBy16,             /* System PLL Clock Divider 2: divided by 16 */
         .src = kSCG_SysPllSrcSysOsc,              /* System PLL clock source is System OSC */
         .prediv = 0,                              /* Divided by 1 */
@@ -220,6 +229,8 @@ void BOARD_BootClockRUN(void)
     } while (curConfig.src != g_sysClkConfig_BOARD_BootClockRUN.src);
     /* Set SystemCoreClock variable. */
     SystemCoreClock = BOARD_BOOTCLOCKRUN_CORE_CLOCK;
+    /* Set PCC ADC0 selection */
+    CLOCK_SetIpSrc(kCLOCK_Adc0, kCLOCK_IpSrcSysOscAsync);
     /* Set PCC LPSPI0 selection */
     CLOCK_SetIpSrc(kCLOCK_Lpspi0, kCLOCK_IpSrcSysPllAsync);
     /* Set PCC LPSPI1 selection */
@@ -228,5 +239,9 @@ void BOARD_BootClockRUN(void)
     CLOCK_SetIpSrc(kCLOCK_Lpuart0, kCLOCK_IpSrcSysPllAsync);
     /* Set PCC FLEXIO selection */
     CLOCK_SetIpSrc(kCLOCK_Flexio0, kCLOCK_IpSrcSysPllAsync);
+    /* Set PCC FTM0 selection */
+    CLOCK_SetIpSrc(kCLOCK_Ftm0, kCLOCK_IpSrcSysPllAsync);
+    /* Set PCC FTM3 selection */
+    CLOCK_SetIpSrc(kCLOCK_Ftm3, kCLOCK_IpSrcSysPllAsync);
 }
 

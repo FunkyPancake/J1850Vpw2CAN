@@ -9,19 +9,17 @@
 /***********************************************************************************************************************
  * Included files
  **********************************************************************************************************************/
+#include "fsl_adc12.h"
 #include "fsl_clock.h"
 #include "fsl_common.h"
 #include "fsl_dmamux.h"
 #include "fsl_edma.h"
-#include "fsl_ewm.h"
 #include "fsl_flexcan.h"
 #include "fsl_ftm.h"
-#include "fsl_gpio.h"
 #include "fsl_lpspi.h"
 #include "fsl_lpspi_freertos.h"
 #include "fsl_lpuart.h"
 #include "fsl_lpuart_edma.h"
-#include "fsl_port.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -57,11 +55,17 @@ extern "C" {
 /* Transfer buffer size */
 #define LPSPI0_BUFFER_SIZE 10
 /* Definition of peripheral ID */
-#define FTM1_PERIPHERAL FTM1
+#define FTM3_PERIPHERAL FTM3
 /* Definition of the clock source frequency */
-#define FTM1_CLOCK_SOURCE 168000000UL
+#define FTM3_CLOCK_SOURCE 21000000UL
 /* Definition of the clock source frequency */
-#define FTM1_TIMER_MODULO_VALUE 83
+#define FTM3_TIMER_MODULO_VALUE 20
+/* FTM3 interrupt vector ID (number). */
+#define FTM3_IRQN FTM3_IRQn
+/* FTM3 interrupt vector priority. */
+#define FTM3_IRQ_PRIORITY 1
+/* FTM3 interrupt handler identifier. */
+#define FTM3_IRQHANDLER FTM3_IRQHandler
 /* Definition of peripheral ID */
 #define LPUART0_PERIPHERAL LPUART0
 /* Definition of the clock source frequency */
@@ -82,40 +86,16 @@ extern "C" {
 #define LPUART0_TX_DMAMUX_BASEADDR DMAMUX
 /* Used DMA device. */
 #define LPUART0_TX_DMA_BASEADDR DMA0
-/* Alias for GPIOD peripheral */
-#define GPIOD_GPIO GPIOD
-/* Alias for PORTD */
-#define GPIOD_PORT PORTD
-/* GPIOD interrupt vector ID (number). */
-#define GPIOD_IRQN PORTD_IRQn
-/* GPIOD interrupt vector priority. */
-#define GPIOD_IRQ_PRIORITY 2
-/* GPIOD interrupt handler identifier. */
-#define GPIOD_IRQHANDLER PORTD_IRQHandler
-/* FLEXIO_CTRL: DOZEN=0, DBGE=0, FASTACC=0, FLEXEN=0 */
-#define FLEXIO_CTRL_INIT 0x0U
-/* FLEXIO_SHIFTSIEN: SSIE=0 */
-#define FLEXIO_SHIFTSIEN_INIT 0x0U
-/* FLEXIO_SHIFTEIEN: SEIE=0 */
-#define FLEXIO_SHIFTEIEN_INIT 0x0U
-/* FLEXIO_TIMIEN: TEIE=0 */
-#define FLEXIO_TIMIEN_INIT 0x0U
-/* FLEXIO_SHIFTSDEN: SSDE=0 */
-#define FLEXIO_SHIFTSDEN_INIT 0x0U
-/* FLEXIO_SHIFTCTL0: TIMSEL=0, TIMPOL=0, PINCFG=0, PINSEL=0, PINPOL=0, SMOD=0 */
-#define FLEXIO_SHIFTCTL0_INIT 0x0U
-/* FLEXIO_SHIFTCFG0: INSRC=0, SSTOP=0, SSTART=0 */
-#define FLEXIO_SHIFTCFG0_INIT 0x0U
-/* FLEXIO_TIMCTL0: TRGSEL=0, TRGPOL=0, TRGSRC=0, PINCFG=0, PINSEL=0, PINPOL=0, TIMOD=0 */
-#define FLEXIO_TIMCTL0_INIT 0x0U
-/* FLEXIO_TIMCFG0: TIMOUT=0, TIMDEC=0, TIMRST=0, TIMDIS=0, TIMENA=0, TSTOP=0, TSTART=0 */
-#define FLEXIO_TIMCFG0_INIT 0x0U
-/* Alias for EWM peripheral */
-#define EWM_PERIPHERAL EWM
 /* Definition of peripheral ID */
 #define CAN1_PERIPHERAL CAN1
 /* Definition of the clock source frequency */
 #define CAN1_CLOCK_SOURCE 84000000UL
+/* Alias for ADC0 peripheral */
+#define ADC0_PERIPHERAL ADC0
+/* ADC0 interrupt vector ID (number). */
+#define ADC0_IRQN ADC0_IRQn
+/* ADC0 interrupt handler identifier. */
+#define ADC0_IRQHANDLER ADC0_IRQHandler
 
 /***********************************************************************************************************************
  * Global variables
@@ -128,16 +108,18 @@ extern flexcan_rx_fifo_config_t CAN0_rx_fifo_config;
 extern const lpspi_master_config_t LPSPI0_config;
 extern lpspi_transfer_t LPSPI0_transfer;
 extern lpspi_rtos_handle_t LPSPI0_handle;
-extern const ftm_config_t FTM1_config;
+extern const ftm_config_t FTM3_config;
 extern const lpuart_config_t LPUART0_config;
 extern edma_handle_t LPUART0_RX_Handle;
 extern edma_handle_t LPUART0_TX_Handle;
 extern lpuart_edma_handle_t LPUART0_LPUART_eDMA_Handle;
-extern const ewm_config_t EWM_config;
 extern const flexcan_config_t CAN1_config;
 /* Message buffer 0 configuration structure */
 extern const flexcan_rx_mb_config_t CAN1_rx_mb_config_0;
 extern flexcan_rx_fifo_config_t CAN1_rx_fifo_config;
+extern const adc12_config_t ADC0_config;
+extern adc12_channel_config_t ADC0_channelsConfig[3];
+extern const adc12_hardware_average_mode_t ADC0_hardwareAverageConfig;
 
 /***********************************************************************************************************************
  * Initialization functions

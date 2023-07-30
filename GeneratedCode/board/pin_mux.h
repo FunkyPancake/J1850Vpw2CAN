@@ -25,10 +25,6 @@ extern "C" {
  */
 void BOARD_InitBootPins(void);
 
-#define PORT_DFER_DFE_7_MASK 0x80u   /*!<@brief Digital Filter Enable Mask for item 7. */
-#define PORT_DFER_DFE_8_MASK 0x0100u /*!<@brief Digital Filter Enable Mask for item 8. */
-#define PORT_DFER_DFE_9_MASK 0x0200u /*!<@brief Digital Filter Enable Mask for item 9. */
-
 /*! @name PORTE10 (number 4), D1
   @{ */
 
@@ -81,45 +77,6 @@ void BOARD_InitBootPins(void);
 #define BOARD_INITPINS_D4_PIN_MASK (1U << 8U)      /*!<@brief PORT pin mask */
                                                    /* @} */
 
-/*! @name PORTC9 (number 35), C2
-  @{ */
-
-/* Symbols to be used with GPIO driver */
-#define BOARD_INITPINS_C2_GPIO GPIOC               /*!<@brief GPIO peripheral base pointer */
-#define BOARD_INITPINS_C2_GPIO_PIN_MASK (1U << 9U) /*!<@brief GPIO pin mask */
-
-/* Symbols to be used with PORT driver */
-#define BOARD_INITPINS_C2_PORT PORTC               /*!<@brief PORT peripheral base pointer */
-#define BOARD_INITPINS_C2_PIN 9U                   /*!<@brief PORT pin number */
-#define BOARD_INITPINS_C2_PIN_MASK (1U << 9U)      /*!<@brief PORT pin mask */
-                                                   /* @} */
-
-/*! @name PORTC8 (number 36), C3
-  @{ */
-
-/* Symbols to be used with GPIO driver */
-#define BOARD_INITPINS_C3_GPIO GPIOC               /*!<@brief GPIO peripheral base pointer */
-#define BOARD_INITPINS_C3_GPIO_PIN_MASK (1U << 8U) /*!<@brief GPIO pin mask */
-
-/* Symbols to be used with PORT driver */
-#define BOARD_INITPINS_C3_PORT PORTC               /*!<@brief PORT peripheral base pointer */
-#define BOARD_INITPINS_C3_PIN 8U                   /*!<@brief PORT pin number */
-#define BOARD_INITPINS_C3_PIN_MASK (1U << 8U)      /*!<@brief PORT pin mask */
-                                                   /* @} */
-
-/*! @name PORTA7 (number 37), C4
-  @{ */
-
-/* Symbols to be used with GPIO driver */
-#define BOARD_INITPINS_C4_GPIO GPIOA               /*!<@brief GPIO peripheral base pointer */
-#define BOARD_INITPINS_C4_GPIO_PIN_MASK (1U << 7U) /*!<@brief GPIO pin mask */
-
-/* Symbols to be used with PORT driver */
-#define BOARD_INITPINS_C4_PORT PORTA               /*!<@brief PORT peripheral base pointer */
-#define BOARD_INITPINS_C4_PIN 7U                   /*!<@brief PORT pin number */
-#define BOARD_INITPINS_C4_PIN_MASK (1U << 7U)      /*!<@brief PORT pin mask */
-                                                   /* @} */
-
     /*! @name PORTC6 (number 52), VPW_TX
   @{ */
 
@@ -137,6 +94,33 @@ void BOARD_InitBootPins(void);
     #define BOARD_INITPINS_VPW_RX_PIN 7U              /*!<@brief PORT pin number */
     #define BOARD_INITPINS_VPW_RX_PIN_MASK (1U << 7U) /*!<@brief PORT pin mask */
                                                       /* @} */
+
+/*! @name PORTC0 (number 26), C3
+  @{ */
+
+/* Symbols to be used with PORT driver */
+    #define BOARD_INITPINS_C3_PORT PORTC          /*!<@brief PORT peripheral base pointer */
+    #define BOARD_INITPINS_C3_PIN 0U              /*!<@brief PORT pin number */
+    #define BOARD_INITPINS_C3_PIN_MASK (1U << 0U) /*!<@brief PORT pin mask */
+                                                  /* @} */
+
+    /*! @name PORTC1 (number 25), C2
+  @{ */
+
+/* Symbols to be used with PORT driver */
+    #define BOARD_INITPINS_C2_PORT PORTC          /*!<@brief PORT peripheral base pointer */
+    #define BOARD_INITPINS_C2_PIN 1U              /*!<@brief PORT pin number */
+    #define BOARD_INITPINS_C2_PIN_MASK (1U << 1U) /*!<@brief PORT pin mask */
+                                                  /* @} */
+
+/*! @name PORTC17 (number 27), C1
+  @{ */
+
+/* Symbols to be used with PORT driver */
+    #define BOARD_INITPINS_C1_PORT PORTC           /*!<@brief PORT peripheral base pointer */
+    #define BOARD_INITPINS_C1_PIN 17U              /*!<@brief PORT pin number */
+    #define BOARD_INITPINS_C1_PIN_MASK (1U << 17U) /*!<@brief PORT pin mask */
+                                                   /* @} */
 
 /*!
  * @brief Configures pin routing and optionally pin electrical features.

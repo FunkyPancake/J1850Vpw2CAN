@@ -12,19 +12,17 @@ processor: MKE18F256xxx16
 package_id: MKE18F256VLH16
 mcu_data: ksdk2_0
 processor_version: 13.0.1
+external_user_signals: {}
 pin_labels:
 - {pin_num: '4', pin_signal: ADC2_SE12/PTE10/CLKOUT/FTM2_CH4/FXIO_D4/TRGMUX_OUT4, label: D1, identifier: D1}
 - {pin_num: '3', pin_signal: ADC2_SE13/PTE11/PWT_IN1/LPTMR0_ALT1/FTM2_CH5/FXIO_D5/TRGMUX_OUT5, label: D2, identifier: D2}
 - {pin_num: '18', pin_signal: PTB5/FTM0_CH5/LPSPI0_PCS1/TRGMUX_IN0/ACMP1_OUT, label: D3, identifier: D3}
 - {pin_num: '17', pin_signal: ACMP0_IN3/PTE8/FTM0_CH6, label: D4, identifier: D4}
-- {pin_num: '35', pin_signal: ADC2_SE15/PTC9/LPUART1_TX/FTM1_FLT1/LPUART0_RTS, label: C2, identifier: C2}
-- {pin_num: '36', pin_signal: ADC2_SE14/PTC8/LPUART1_RX/FTM1_FLT0/LPUART0_CTS, label: C3, identifier: C3}
-- {pin_num: '37', pin_signal: ADC0_SE3/ACMP1_IN1/PTA7/FTM0_FLT2/RTC_CLKIN/LPUART1_RTS, label: C4, identifier: C4}
-- {pin_num: '44', pin_signal: ADC1_SE6/ACMP1_IN6/PTD4/FTM0_FLT3/FTM3_FLT3, label: HIP_IDLE, identifier: HIP_CLK;HIP_IDLE}
-- {pin_num: '50', pin_signal: ADC0_SE0/ACMP0_IN0/PTA0/FTM2_CH1/LPI2C0_SCLS/FXIO_D2/FTM2_QD_PHA/LPUART0_CTS/TRGMUX_OUT3, label: VPW_TX, identifier: VPW_TX}
-- {pin_num: '49', pin_signal: ADC0_SE1/ACMP0_IN1/PTA1/FTM1_CH1/LPI2C0_SDAS/FXIO_D3/FTM1_QD_PHA/LPUART0_RTS/TRGMUX_OUT0, label: VPW_RX, identifier: VPW_RX}
 - {pin_num: '52', pin_signal: ADC1_SE4/PTC6/LPUART1_RX/CAN1_RX/FTM3_CH2, label: VPW_TX, identifier: VPW_TX}
 - {pin_num: '51', pin_signal: ADC1_SE5/PTC7/LPUART1_TX/CAN1_TX/FTM3_CH3, label: VPW_RX, identifier: VPW_RX}
+- {pin_num: '25', pin_signal: ADC0_SE9/ACMP1_IN3/PTC1/FTM0_CH1/FTM1_CH7, label: C2, identifier: C2}
+- {pin_num: '26', pin_signal: ADC0_SE8/ACMP1_IN4/PTC0/FTM0_CH0/FTM1_CH6, label: C3, identifier: C3}
+- {pin_num: '27', pin_signal: ADC0_SE15/PTC17/FTM1_FLT3/LPI2C1_SCLS, label: C1, identifier: C4;C1}
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS ***********
  */
 /* clang-format on */
@@ -67,16 +65,16 @@ BOARD_InitPins:
   - {pin_num: '3', peripheral: GPIOE, signal: 'GPIO, 11', pin_signal: ADC2_SE13/PTE11/PWT_IN1/LPTMR0_ALT1/FTM2_CH5/FXIO_D5/TRGMUX_OUT5, direction: OUTPUT, gpio_init_state: 'true'}
   - {pin_num: '18', peripheral: GPIOB, signal: 'GPIO, 5', pin_signal: PTB5/FTM0_CH5/LPSPI0_PCS1/TRGMUX_IN0/ACMP1_OUT, direction: OUTPUT, gpio_init_state: 'true'}
   - {pin_num: '17', peripheral: GPIOE, signal: 'GPIO, 8', pin_signal: ACMP0_IN3/PTE8/FTM0_CH6, direction: OUTPUT, gpio_init_state: 'true'}
-  - {pin_num: '35', peripheral: GPIOC, signal: 'GPIO, 9', pin_signal: ADC2_SE15/PTC9/LPUART1_TX/FTM1_FLT1/LPUART0_RTS, direction: INPUT, pull_enable: enable, digital_filter: enable}
-  - {pin_num: '36', peripheral: GPIOC, signal: 'GPIO, 8', pin_signal: ADC2_SE14/PTC8/LPUART1_RX/FTM1_FLT0/LPUART0_CTS, direction: INPUT, pull_enable: enable, digital_filter: enable}
-  - {pin_num: '37', peripheral: GPIOA, signal: 'GPIO, 7', pin_signal: ADC0_SE3/ACMP1_IN1/PTA7/FTM0_FLT2/RTC_CLKIN/LPUART1_RTS, direction: INPUT, pull_enable: enable,
-    digital_filter: enable}
   - {pin_num: '47', peripheral: LPUART0, signal: TX, pin_signal: ADC1_SE1/PTA3/FTM3_CH1/LPI2C0_SCL/EWM_IN/LPUART0_TX}
   - {pin_num: '48', peripheral: LPUART0, signal: RX, pin_signal: ADC1_SE0/PTA2/FTM3_CH0/LPI2C0_SDA/EWM_OUT_b/LPUART0_RX}
   - {pin_num: '56', peripheral: CAN1, signal: RX, pin_signal: ADC2_SE5/PTA12/FTM1_CH6/CAN1_RX/LPI2C1_SDAS}
   - {pin_num: '55', peripheral: CAN1, signal: TX, pin_signal: ADC2_SE4/PTA13/FTM1_CH7/CAN1_TX/LPI2C1_SCLS}
   - {pin_num: '52', peripheral: FTM3, signal: 'CH, 2', pin_signal: ADC1_SE4/PTC6/LPUART1_RX/CAN1_RX/FTM3_CH2}
   - {pin_num: '51', peripheral: FTM3, signal: 'CH, 3', pin_signal: ADC1_SE5/PTC7/LPUART1_TX/CAN1_TX/FTM3_CH3}
+  - {pin_num: '45', peripheral: SystemControl, signal: NMI, pin_signal: ADC1_SE3/PTD3/FTM3_CH5/LPSPI1_PCS0/FXIO_D5/TRGMUX_IN4/NMI_b}
+  - {pin_num: '26', peripheral: ADC0, signal: 'SE, 8', pin_signal: ADC0_SE8/ACMP1_IN4/PTC0/FTM0_CH0/FTM1_CH6}
+  - {pin_num: '25', peripheral: ADC0, signal: 'SE, 9', pin_signal: ADC0_SE9/ACMP1_IN3/PTC1/FTM0_CH1/FTM1_CH7}
+  - {pin_num: '27', peripheral: ADC0, signal: 'SE, 15', pin_signal: ADC0_SE15/PTC17/FTM1_FLT3/LPI2C1_SCLS, identifier: C1}
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS ***********
  */
 /* clang-format on */
@@ -96,14 +94,9 @@ void BOARD_InitPins(void)
     /* Clock Control: Clock enabled */
     CLOCK_EnableClock(kCLOCK_PortC);
     /* Clock Control: Clock enabled */
+    CLOCK_EnableClock(kCLOCK_PortD);
+    /* Clock Control: Clock enabled */
     CLOCK_EnableClock(kCLOCK_PortE);
-
-    gpio_pin_config_t C4_config = {
-        .pinDirection = kGPIO_DigitalInput,
-        .outputLogic = 0U
-    };
-    /* Initialize GPIO functionality on pin PTA7 (pin 37)  */
-    GPIO_PinInit(BOARD_INITPINS_C4_GPIO, BOARD_INITPINS_C4_PIN, &C4_config);
 
     gpio_pin_config_t D3_config = {
         .pinDirection = kGPIO_DigitalOutput,
@@ -111,20 +104,6 @@ void BOARD_InitPins(void)
     };
     /* Initialize GPIO functionality on pin PTB5 (pin 18)  */
     GPIO_PinInit(BOARD_INITPINS_D3_GPIO, BOARD_INITPINS_D3_PIN, &D3_config);
-
-    gpio_pin_config_t C3_config = {
-        .pinDirection = kGPIO_DigitalInput,
-        .outputLogic = 0U
-    };
-    /* Initialize GPIO functionality on pin PTC8 (pin 36)  */
-    GPIO_PinInit(BOARD_INITPINS_C3_GPIO, BOARD_INITPINS_C3_PIN, &C3_config);
-
-    gpio_pin_config_t C2_config = {
-        .pinDirection = kGPIO_DigitalInput,
-        .outputLogic = 0U
-    };
-    /* Initialize GPIO functionality on pin PTC9 (pin 35)  */
-    GPIO_PinInit(BOARD_INITPINS_C2_GPIO, BOARD_INITPINS_C2_PIN, &C2_config);
 
     gpio_pin_config_t D4_config = {
         .pinDirection = kGPIO_DigitalOutput,
@@ -146,14 +125,6 @@ void BOARD_InitPins(void)
     };
     /* Initialize GPIO functionality on pin PTE11 (pin 3)  */
     GPIO_PinInit(BOARD_INITPINS_D2_GPIO, BOARD_INITPINS_D2_PIN, &D2_config);
-    /* Configure digital filter */
-    PORT_EnablePinsDigitalFilter(
-        /* Digital filter is configured on port A */
-        PORTA,
-        /* Digital filter is configured for PORTA0 */
-        PORT_DFER_DFE_7_MASK,
-        /* Enable digital filter */
-        true);
 
     /* PORTA10 (pin 58) is configured as noetm_Trace_SWO */
     PORT_SetPinMux(PORTA, 10U, kPORT_MuxAlt7);
@@ -176,16 +147,6 @@ void BOARD_InitPins(void)
     /* PORTA5 (pin 63) is configured as RESET_b */
     PORT_SetPinMux(PORTA, 5U, kPORT_MuxAlt7);
 
-    /* PORTA7 (pin 37) is configured as PTA7 */
-    PORT_SetPinMux(BOARD_INITPINS_C4_PORT, BOARD_INITPINS_C4_PIN, kPORT_MuxAsGpio);
-
-    PORTA->PCR[7] = ((PORTA->PCR[7] &
-                      /* Mask bits to zero which are setting */
-                      (~(PORT_PCR_PE_MASK | PORT_PCR_ISF_MASK)))
-
-                     /* Pull Enable: Internal pullup or pulldown resistor is enabled on the corresponding pin. */
-                     | (uint32_t)(PORT_PCR_PE_MASK));
-
     /* PORTB0 (pin 34) is configured as LPSPI0_PCS0 */
     PORT_SetPinMux(PORTB, 0U, kPORT_MuxAlt3);
 
@@ -206,16 +167,15 @@ void BOARD_InitPins(void)
 
     /* PORTB7 (pin 11) is configured as EXTAL */
     PORT_SetPinMux(PORTB, 7U, kPORT_PinDisabledOrAnalog);
-    /* Configure digital filter */
-    PORT_EnablePinsDigitalFilter(
-        /* Digital filter is configured on port C */
-        PORTC,
-        /* Digital filter is configured for PORTC0 */
-          PORT_DFER_DFE_8_MASK
-            /* Digital filter is configured for PORTC1 */
-            | PORT_DFER_DFE_9_MASK,
-        /* Enable digital filter */
-        true);
+
+    /* PORTC0 (pin 26) is configured as ADC0_SE8 */
+    PORT_SetPinMux(BOARD_INITPINS_C3_PORT, BOARD_INITPINS_C3_PIN, kPORT_PinDisabledOrAnalog);
+
+    /* PORTC1 (pin 25) is configured as ADC0_SE9 */
+    PORT_SetPinMux(BOARD_INITPINS_C2_PORT, BOARD_INITPINS_C2_PIN, kPORT_PinDisabledOrAnalog);
+
+    /* PORTC17 (pin 27) is configured as ADC0_SE15 */
+    PORT_SetPinMux(BOARD_INITPINS_C1_PORT, BOARD_INITPINS_C1_PIN, kPORT_PinDisabledOrAnalog);
 
     /* PORTC4 (pin 62) is configured as SWD_CLK */
     PORT_SetPinMux(PORTC, 4U, kPORT_MuxAlt7);
@@ -226,25 +186,8 @@ void BOARD_InitPins(void)
     /* PORTC7 (pin 51) is configured as FTM3_CH3 */
     PORT_SetPinMux(BOARD_INITPINS_VPW_RX_PORT, BOARD_INITPINS_VPW_RX_PIN, kPORT_MuxAlt4);
 
-    /* PORTC8 (pin 36) is configured as PTC8 */
-    PORT_SetPinMux(BOARD_INITPINS_C3_PORT, BOARD_INITPINS_C3_PIN, kPORT_MuxAsGpio);
-
-    PORTC->PCR[8] = ((PORTC->PCR[8] &
-                      /* Mask bits to zero which are setting */
-                      (~(PORT_PCR_PE_MASK | PORT_PCR_ISF_MASK)))
-
-                     /* Pull Enable: Internal pullup or pulldown resistor is enabled on the corresponding pin. */
-                     | (uint32_t)(PORT_PCR_PE_MASK));
-
-    /* PORTC9 (pin 35) is configured as PTC9 */
-    PORT_SetPinMux(BOARD_INITPINS_C2_PORT, BOARD_INITPINS_C2_PIN, kPORT_MuxAsGpio);
-
-    PORTC->PCR[9] = ((PORTC->PCR[9] &
-                      /* Mask bits to zero which are setting */
-                      (~(PORT_PCR_PE_MASK | PORT_PCR_ISF_MASK)))
-
-                     /* Pull Enable: Internal pullup or pulldown resistor is enabled on the corresponding pin. */
-                     | (uint32_t)(PORT_PCR_PE_MASK));
+    /* PORTD3 (pin 45) is configured as NMI_b */
+    PORT_SetPinMux(PORTD, 3U, kPORT_MuxAlt7);
 
     /* PORTE10 (pin 4) is configured as PTE10 */
     PORT_SetPinMux(BOARD_INITPINS_D1_PORT, BOARD_INITPINS_D1_PIN, kPORT_MuxAsGpio);
