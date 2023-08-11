@@ -18,6 +18,7 @@
 #include "LpSpi.h"
 #include "LpUart.h"
 #include "Tle9461.h"
+#include "fsl_gpio.h"
 #include "peripherals.h"
 #include "pin_mux.h"
 #include <memory>
@@ -29,74 +30,51 @@ using namespace KeCommon::Bsw::Diag;
 using namespace App;
 
 constexpr UBaseType_t app_task_PRIORITY = (configMAX_PRIORITIES - 1);
-constexpr UBaseType_t cal_task_PRIORITY = (configMAX_PRIORITIES - 2);
 
-[[noreturn]] static void comTask(void *pvParameters);
-
+//For MVP use single task only
 [[noreturn]] static void appTask(void *pvParameters);
 
 [[noreturn]] static void appTask(void *pvParameters)
 {
-    TickType_t xLastWakeTime;
-    const TickType_t xFrequency = MS2TICKS(100);
-    auto gateway = reinterpret_cast<Gateway *>(pvParameters);
-    xLastWakeTime = xTaskGetTickCount();
-
-    App::GearSelector gearSelector{};
-    auto led = 1;
-    for (;;) {
-        led ^= 1;
-        GPIO_PinWrite(BOARD_INITPINS_D2_GPIO, BOARD_INITPINS_D2_PIN, led);
-        gearSelector.MainFunction();
-        gateway->SetGearAndMode(gearSelector.GetGear(), gearSelector.GetDriveMode());
-
-        vTaskDelayUntil(&xLastWakeTime, xFrequency);
-    }
-}
-[[noreturn]] static void comTask(void *pvParameters)
-{
-    constexpr TickType_t xFrequency = MS2TICKS(5);
-
+    constexpr TickType_t xFrequency = MS2TICKS(10);
+    auto can1 = std::make_shared<FlexCan>(CAN0, 16);
+    auto can2 = std::make_shared<FlexCan>(CAN1, 16);
+    auto gateway = Gateway(can1, can2);
     LpSpiRtos sbcSpi{&LPSPI0_handle};
     Tle9461 sbc{&sbcSpi};
 
-    auto gateway = reinterpret_cast<Gateway *>(pvParameters);
-    auto can1 = gateway->GetCan(1);
-    auto can2 = gateway->GetCan(2);
     auto canTp = CanTp{*can1};
     auto uds = Uds{&canTp};
     auto led = 1;
+    App::GearSelector gearSelector{};
 
     TickType_t xLastWakeTime = xTaskGetTickCount();
     sbc.Init();
     sbc.ConfigWatchdog(Tle9461::WgTimer200ms);
+
     for (;;) {
         led ^= 1;
         GPIO_PinWrite(BOARD_INITPINS_D1_GPIO, BOARD_INITPINS_D1_PIN, led);
         can1->RxTask();
         can2->RxTask();
         uds.MainFunction();
-        gateway->MainFunction();
+
+        gearSelector.MainFunction();
+        gateway.SetGearAndMode(gearSelector.GetGear(), gearSelector.GetDriveMode());
+
+        gateway.MainFunction();
+
         canTp.TxMainFunction();
         can1->TxTask();
         can2->TxTask();
         sbc.RefreshWatchdog();
-
         vTaskDelayUntil(&xLastWakeTime, xFrequency);
     }
 }
 void AppTasksInit()
 {
-    static std::shared_ptr<ICan> can1 = std::make_shared<FlexCan>(CAN0, 16);
-    static std::shared_ptr<ICan> can2 = std::make_shared<FlexCan>(CAN1, 16);
-    static std::shared_ptr<Gateway> gw = std::make_shared<Gateway>(can1, can2);
-    if (xTaskCreate(appTask, "appTask", configMINIMAL_STACK_SIZE + 256, (void *) &gw, app_task_PRIORITY, nullptr)
-        != pdPASS) {
-        while (true)
-            ;
-    }
 
-    if (xTaskCreate(comTask, "comTask", configMINIMAL_STACK_SIZE + 256, (void *) &gw, cal_task_PRIORITY, nullptr)
+    if (xTaskCreate(appTask, "appTask", configMINIMAL_STACK_SIZE + 512, nullptr, app_task_PRIORITY, nullptr)
         != pdPASS) {
         while (true)
             ;

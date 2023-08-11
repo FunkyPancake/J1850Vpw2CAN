@@ -116,7 +116,6 @@ instance:
     - interrupt_table:
       - 0: []
       - 1: []
-      - 2: []
     - interrupts: []
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS **********/
 /* clang-format on */
@@ -142,7 +141,7 @@ instance:
   - interruptsCfg:
     - messageBufferIrqs: '0'
     - interruptsEnable: ''
-    - enable_ored_mb_irq: 'true'
+    - enable_ored_mb_irq: 'false'
     - interrupt_ored_mb:
       - IRQn: 'CAN0_ORed_Message_buffer_IRQn'
       - enable_interrrupt: 'enabled'
@@ -227,18 +226,18 @@ instance:
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS **********/
 /* clang-format on */
 const flexcan_config_t CAN0_config = {
-  .clkSrc = kFLEXCAN_ClkSrc1,
-  .wakeupSrc = kFLEXCAN_WakeupSrcUnfiltered,
-  .baudRate = 500000UL,
-  .maxMbNum = 16U,
-  .enableLoopBack = false,
-  .enableTimerSync = true,
-  .enableSelfWakeup = false,
-  .enableIndividMask = false,
-  .disableSelfReception = false,
-  .enableListenOnlyMode = false,
-  .timingConfig = {
-    .preDivider = 11,
+        .clkSrc = kFLEXCAN_ClkSrc1,
+        .wakeupSrc = kFLEXCAN_WakeupSrcUnfiltered,
+        .baudRate = 500000UL,
+        .maxMbNum = 16U,
+        .enableLoopBack = false,
+        .enableTimerSync = true,
+        .enableSelfWakeup = false,
+        .enableIndividMask = false,
+        .disableSelfReception = false,
+        .enableListenOnlyMode = false,
+        .timingConfig = {
+                .preDivider = 11,
     .propSeg = 6,
     .phaseSeg1 = 3,
     .phaseSeg2 = 1,
@@ -259,14 +258,6 @@ static void CAN0_init(void) {
   FLEXCAN_SetRxMbConfig(CAN0_PERIPHERAL, 0, &CAN0_rx_mb_config_0, true);
   /* Message buffer 1 initialization */
   FLEXCAN_SetTxMbConfig(CAN0_PERIPHERAL, 1, true);
-  /* Interrupt vector CAN0_ORed_Message_buffer_IRQn priority settings in the NVIC. */
-  NVIC_SetPriority(CAN0_CAN_ORED_MB_IRQN, CAN0_CAN_ORED_MB_IRQ_PRIORITY);
-  /* Enable interrupt CAN0_ORed_Message_buffer_IRQn request in the NVIC. */
-  EnableIRQ(CAN0_CAN_ORED_MB_IRQN);
-  /* Interrupt vector CAN0_ORed_Message_buffer_IRQn priority settings in the NVIC. */
-  NVIC_SetPriority(CAN0_CAN_ORED_MB_IRQN, CAN0_CAN_ORED_MB_IRQ_PRIORITY);
-  /* Enable interrupt CAN0_ORed_Message_buffer_IRQn request in the NVIC. */
-  EnableIRQ(CAN0_CAN_ORED_MB_IRQN);
 }
 
 /***********************************************************************************************************************
@@ -406,7 +397,7 @@ instance:
       - enable_priority: 'true'
       - priority: '1'
       - enable_custom_name: 'false'
-    - EnableTimerInInit: 'true'
+    - EnableTimerInInit: 'false'
   - ftm_edge_aligned_mode:
     - ftm_edge_aligned_channels_config:
       - 0:
@@ -436,33 +427,31 @@ instance:
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS **********/
 /* clang-format on */
 const ftm_config_t FTM3_config = {
-    .prescale = kFTM_Prescale_Divide_1,
-  .faultMode = kFTM_Fault_Disable,
-  .faultFilterValue = 0,
-  .deadTimePrescale = kFTM_Deadtime_Prescale_1,
-  .deadTimeValue = 0,
-  .pwmSyncMode = kFTM_SoftwareTrigger,
-  .reloadPoints = kFTM_CntMax,
-  .extTriggers = 0,
-  .chnlInitState = 0,
-  .chnlPolarity = 0,
-  .bdmMode = kFTM_BdmMode_3,
-  .useGlobalTimeBase = false
+        .prescale = kFTM_Prescale_Divide_1,
+        .faultMode = kFTM_Fault_Disable,
+        .faultFilterValue = 0,
+        .deadTimePrescale = kFTM_Deadtime_Prescale_1,
+        .deadTimeValue = 0,
+        .pwmSyncMode = kFTM_SoftwareTrigger,
+        .reloadPoints = kFTM_CntMax,
+        .extTriggers = 0,
+        .chnlInitState = 0,
+        .chnlPolarity = 0,
+        .bdmMode = kFTM_BdmMode_3,
+        .useGlobalTimeBase = false
 };
 
-static void FTM3_init(void)
-{
-  FTM_Init(FTM3_PERIPHERAL, &FTM3_config);
-  FTM_SetTimerPeriod(FTM3_PERIPHERAL, FTM3_TIMER_MODULO_VALUE);
-  FTM_SetupOutputCompare(FTM3_PERIPHERAL, kFTM_Chnl_2, kFTM_NoOutputSignal, 0U);
-  FTM_SetupInputCapture(FTM3_PERIPHERAL, kFTM_Chnl_3, kFTM_RisingEdge, 0);
-  FTM_SetupOutputCompare(FTM3_PERIPHERAL, kFTM_Chnl_0, kFTM_NoOutputSignal, 0U);
-  FTM_EnableInterrupts(FTM3_PERIPHERAL, kFTM_Chnl2InterruptEnable | kFTM_Chnl3InterruptEnable);
-  /* Interrupt vector FTM3_IRQn priority settings in the NVIC. */
-  NVIC_SetPriority(FTM3_IRQN, FTM3_IRQ_PRIORITY);
-  /* Enable interrupt FTM3_IRQn request in the NVIC. */
-  EnableIRQ(FTM3_IRQN);
-  FTM_StartTimer(FTM3_PERIPHERAL, kFTM_FixedClock);
+static void FTM3_init(void) {
+    FTM_Init(FTM3_PERIPHERAL, &FTM3_config);
+    FTM_SetTimerPeriod(FTM3_PERIPHERAL, FTM3_TIMER_MODULO_VALUE);
+    FTM_SetupOutputCompare(FTM3_PERIPHERAL, kFTM_Chnl_2, kFTM_NoOutputSignal, 0U);
+    FTM_SetupInputCapture(FTM3_PERIPHERAL, kFTM_Chnl_3, kFTM_RisingEdge, 0);
+    FTM_SetupOutputCompare(FTM3_PERIPHERAL, kFTM_Chnl_0, kFTM_NoOutputSignal, 0U);
+    FTM_EnableInterrupts(FTM3_PERIPHERAL, kFTM_Chnl2InterruptEnable | kFTM_Chnl3InterruptEnable);
+    /* Interrupt vector FTM3_IRQn priority settings in the NVIC. */
+    NVIC_SetPriority(FTM3_IRQN, FTM3_IRQ_PRIORITY);
+    /* Enable interrupt FTM3_IRQn request in the NVIC. */
+    EnableIRQ(FTM3_IRQN);
 }
 
 /***********************************************************************************************************************
@@ -503,7 +492,7 @@ instance:
     - edma_channels:
       - enable_rx_edma_channel: 'true'
       - edma_rx_channel:
-        - uid: '1690535860648'
+        - uid: '1691712597039'
         - eDMAn: '0'
         - eDMA_source: 'kDmaRequestMux0LPUART0Rx'
         - enableTriggerInput: 'false'
@@ -515,7 +504,7 @@ instance:
         - enable_custom_name: 'false'
       - enable_tx_edma_channel: 'true'
       - edma_tx_channel:
-        - uid: '1690535860658'
+        - uid: '1691712597047'
         - eDMAn: '1'
         - eDMA_source: 'kDmaRequestMux0LPUART0Tx'
         - enableTriggerInput: 'false'
@@ -534,40 +523,40 @@ instance:
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS **********/
 /* clang-format on */
 const lpuart_config_t LPUART0_config = {
-  .baudRate_Bps = 115200UL,
-  .parityMode = kLPUART_ParityDisabled,
-  .dataBitsCount = kLPUART_EightDataBits,
-  .isMsb = false,
-  .stopBitCount = kLPUART_OneStopBit,
-  .txFifoWatermark = 0U,
-  .rxFifoWatermark = 1U,
-  .enableRxRTS = false,
-  .enableTxCTS = false,
-  .txCtsSource = kLPUART_CtsSourcePin,
-  .txCtsConfig = kLPUART_CtsSampleAtStart,
-  .rxIdleType = kLPUART_IdleTypeStartBit,
-  .rxIdleConfig = kLPUART_IdleCharacter1,
-  .enableTx = true,
-  .enableRx = true
+        .baudRate_Bps = 115200UL,
+        .parityMode = kLPUART_ParityDisabled,
+        .dataBitsCount = kLPUART_EightDataBits,
+        .isMsb = false,
+        .stopBitCount = kLPUART_OneStopBit,
+        .txFifoWatermark = 0U,
+        .rxFifoWatermark = 1U,
+        .enableRxRTS = false,
+        .enableTxCTS = false,
+        .txCtsSource = kLPUART_CtsSourcePin,
+        .txCtsConfig = kLPUART_CtsSampleAtStart,
+        .rxIdleType = kLPUART_IdleTypeStartBit,
+        .rxIdleConfig = kLPUART_IdleCharacter1,
+        .enableTx = true,
+        .enableRx = true
 };
 edma_handle_t LPUART0_RX_Handle;
 edma_handle_t LPUART0_TX_Handle;
 lpuart_edma_handle_t LPUART0_LPUART_eDMA_Handle;
 
 static void LPUART0_init(void) {
-  LPUART_Init(LPUART0_PERIPHERAL, &LPUART0_config, LPUART0_CLOCK_SOURCE);
-  /* Set the source kDmaRequestMux0LPUART0Rx request in the DMAMUX */
-  DMAMUX_SetSource(LPUART0_RX_DMAMUX_BASEADDR, LPUART0_RX_DMA_CHANNEL, LPUART0_RX_DMA_REQUEST);
-  /* Enable the channel 0 in the DMAMUX */
-  DMAMUX_EnableChannel(LPUART0_RX_DMAMUX_BASEADDR, LPUART0_RX_DMA_CHANNEL);
-  /* Set the source kDmaRequestMux0LPUART0Tx request in the DMAMUX */
-  DMAMUX_SetSource(LPUART0_TX_DMAMUX_BASEADDR, LPUART0_TX_DMA_CHANNEL, LPUART0_TX_DMA_REQUEST);
-  /* Enable the channel 1 in the DMAMUX */
-  DMAMUX_EnableChannel(LPUART0_TX_DMAMUX_BASEADDR, LPUART0_TX_DMA_CHANNEL);
-  /* Create the eDMA LPUART0_RX_Handle handle */
-  EDMA_CreateHandle(&LPUART0_RX_Handle, LPUART0_RX_DMA_BASEADDR, LPUART0_RX_DMA_CHANNEL);
-  /* Create the eDMA LPUART0_TX_Handle handle */
-  EDMA_CreateHandle(&LPUART0_TX_Handle, LPUART0_TX_DMA_BASEADDR, LPUART0_TX_DMA_CHANNEL);
+    LPUART_Init(LPUART0_PERIPHERAL, &LPUART0_config, LPUART0_CLOCK_SOURCE);
+    /* Set the source kDmaRequestMux0LPUART0Rx request in the DMAMUX */
+    DMAMUX_SetSource(LPUART0_RX_DMAMUX_BASEADDR, LPUART0_RX_DMA_CHANNEL, LPUART0_RX_DMA_REQUEST);
+    /* Enable the channel 0 in the DMAMUX */
+    DMAMUX_EnableChannel(LPUART0_RX_DMAMUX_BASEADDR, LPUART0_RX_DMA_CHANNEL);
+    /* Set the source kDmaRequestMux0LPUART0Tx request in the DMAMUX */
+    DMAMUX_SetSource(LPUART0_TX_DMAMUX_BASEADDR, LPUART0_TX_DMA_CHANNEL, LPUART0_TX_DMA_REQUEST);
+    /* Enable the channel 1 in the DMAMUX */
+    DMAMUX_EnableChannel(LPUART0_TX_DMAMUX_BASEADDR, LPUART0_TX_DMA_CHANNEL);
+    /* Create the eDMA LPUART0_RX_Handle handle */
+    EDMA_CreateHandle(&LPUART0_RX_Handle, LPUART0_RX_DMA_BASEADDR, LPUART0_RX_DMA_CHANNEL);
+    /* Create the eDMA LPUART0_TX_Handle handle */
+    EDMA_CreateHandle(&LPUART0_TX_Handle, LPUART0_TX_DMA_BASEADDR, LPUART0_TX_DMA_CHANNEL);
   /* Create the LPUART eDMA handle */
   LPUART_TransferCreateHandleEDMA(LPUART0_PERIPHERAL, &LPUART0_LPUART_eDMA_Handle, NULL, NULL, &LPUART0_TX_Handle, &LPUART0_RX_Handle);
 }
@@ -593,8 +582,8 @@ instance:
     - interrupt_ored_mb:
       - IRQn: 'CAN1_ORed_Message_buffer_IRQn'
       - enable_interrrupt: 'enabled'
-      - enable_priority: 'false'
-      - priority: '0'
+      - enable_priority: 'true'
+      - priority: '1'
       - enable_custom_name: 'false'
     - enable_busoff_irq: 'false'
     - interrupt_busoff:
@@ -634,9 +623,9 @@ instance:
   - fsl_flexcan:
     - can_config:
       - clockSource: 'kFLEXCAN_ClkSrcPeri'
-      - clockSourceFreq: 'ClocksTool_DefaultInit'
+      - clockSourceFreq: 'BOARD_BootClockRUN'
       - wakeupSrc: 'kFLEXCAN_WakeupSrcUnfiltered'
-      - baudRate: '1000000'
+      - baudRate: '500000'
       - maxMbNum: '16'
       - enableLoopBack: 'false'
       - enableTimerSync: 'true'
@@ -645,9 +634,9 @@ instance:
       - disableSelfReception: 'false'
       - enableListenOnlyMode: 'false'
       - timingConfig:
-        - propSeg: '2'
+        - propSeg: '7'
         - phaseSeg1: '4'
-        - phaseSeg2: '3'
+        - phaseSeg2: '2'
         - rJumpwidth: '2'
         - bitTime: []
     - enableRxFIFO: 'false'
@@ -674,36 +663,38 @@ instance:
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS **********/
 /* clang-format on */
 const flexcan_config_t CAN1_config = {
-    .clkSrc = kFLEXCAN_ClkSrc1,
-    .wakeupSrc = kFLEXCAN_WakeupSrcUnfiltered,
-    .baudRate = 1000000UL,
-    .maxMbNum = 16U,
-    .enableLoopBack = false,
-    .enableTimerSync = true,
-    .enableSelfWakeup = false,
-    .enableIndividMask = false,
-    .disableSelfReception = false,
-    .enableListenOnlyMode = false,
-    .timingConfig = {
-        .preDivider = 7,
-        .propSeg = 1,
-        .phaseSeg1 = 3,
-        .phaseSeg2 = 2,
-        .rJumpwidth = 1}};
+        .clkSrc = kFLEXCAN_ClkSrc1,
+        .wakeupSrc = kFLEXCAN_WakeupSrcUnfiltered,
+        .baudRate = 500000UL,
+        .maxMbNum = 16U,
+        .enableLoopBack = false,
+        .enableTimerSync = true,
+        .enableSelfWakeup = false,
+        .enableIndividMask = false,
+        .disableSelfReception = false,
+        .enableListenOnlyMode = false,
+        .timingConfig = {
+                .preDivider = 11,
+                .propSeg = 6,
+                .phaseSeg1 = 3,
+                .phaseSeg2 = 1,
+                .rJumpwidth = 1
+        }
+};
 /* Message buffer 0 configuration structure */
 const flexcan_rx_mb_config_t CAN1_rx_mb_config_0 = {
-    .id = FLEXCAN_ID_STD(0UL),
-    .format = kFLEXCAN_FrameFormatStandard,
-    .type = kFLEXCAN_FrameTypeData};
+        .id = FLEXCAN_ID_STD(0UL),
+        .format = kFLEXCAN_FrameFormatStandard,
+        .type = kFLEXCAN_FrameTypeData
+};
 
-static void CAN1_init(void)
-{
-  FLEXCAN_Init(CAN1_PERIPHERAL, &CAN1_config, CAN1_CLOCK_SOURCE);
+static void CAN1_init(void) {
+    FLEXCAN_Init(CAN1_PERIPHERAL, &CAN1_config, CAN1_CLOCK_SOURCE);
 
-  /* Message buffer 0 initialization */
-  FLEXCAN_SetRxMbConfig(CAN1_PERIPHERAL, 0, &CAN1_rx_mb_config_0, true);
-  /* Message buffer 1 initialization */
-  FLEXCAN_SetTxMbConfig(CAN1_PERIPHERAL, 1, true);
+    /* Message buffer 0 initialization */
+    FLEXCAN_SetRxMbConfig(CAN1_PERIPHERAL, 0, &CAN1_rx_mb_config_0, true);
+    /* Message buffer 1 initialization */
+    FLEXCAN_SetTxMbConfig(CAN1_PERIPHERAL, 1, true);
 }
 
 /***********************************************************************************************************************
@@ -760,23 +751,30 @@ instance:
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS **********/
 /* clang-format on */
 const adc12_config_t ADC0_config = {
-    .referenceVoltageSource = kADC12_ReferenceVoltageSourceVref,
-    .clockSource = kADC12_ClockSourceAlt0,
-    .clockDivider = kADC12_ClockDivider1,
-    .resolution = kADC12_Resolution12Bit,
-    .sampleClockCount = 13UL,
-    .enableContinuousConversion = false};
+        .referenceVoltageSource = kADC12_ReferenceVoltageSourceVref,
+        .clockSource = kADC12_ClockSourceAlt0,
+        .clockDivider = kADC12_ClockDivider1,
+        .resolution = kADC12_Resolution12Bit,
+        .sampleClockCount = 13UL,
+        .enableContinuousConversion = false
+};
 adc12_channel_config_t ADC0_channelsConfig[3] = {
-    {.channelNumber = 11U,
-     .enableInterruptOnConversionCompleted = false},
-    {.channelNumber = 11U,
-     .enableInterruptOnConversionCompleted = false},
-    {.channelNumber = 11U,
-     .enableInterruptOnConversionCompleted = false}};
+        {
+                .channelNumber = 11U,
+                .enableInterruptOnConversionCompleted = false
+        },
+        {
+                .channelNumber = 11U,
+                .enableInterruptOnConversionCompleted = false
+        },
+        {
+                .channelNumber = 11U,
+                .enableInterruptOnConversionCompleted = false
+        }
+};
 const adc12_hardware_average_mode_t ADC0_hardwareAverageConfig = kADC12_HardwareAverageCount16;
 
-static void ADC0_init(void)
-{
+static void ADC0_init(void) {
   /* Initialize ADC12 converter */
   ADC12_Init(ADC0_PERIPHERAL, &ADC0_config);
   /* Set to hardware trigger mode */

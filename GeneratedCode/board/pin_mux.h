@@ -77,50 +77,50 @@ void BOARD_InitBootPins(void);
 #define BOARD_INITPINS_D4_PIN_MASK (1U << 8U)      /*!<@brief PORT pin mask */
                                                    /* @} */
 
-    /*! @name PORTC6 (number 52), VPW_TX
+/*! @name PORTC6 (number 52), VPW_TX
   @{ */
 
 /* Symbols to be used with PORT driver */
-    #define BOARD_INITPINS_VPW_TX_PORT PORTC          /*!<@brief PORT peripheral base pointer */
-    #define BOARD_INITPINS_VPW_TX_PIN 6U              /*!<@brief PORT pin number */
-    #define BOARD_INITPINS_VPW_TX_PIN_MASK (1U << 6U) /*!<@brief PORT pin mask */
-                                                      /* @} */
+#define BOARD_INITPINS_VPW_TX_PORT PORTC               /*!<@brief PORT peripheral base pointer */
+#define BOARD_INITPINS_VPW_TX_PIN 6U                   /*!<@brief PORT pin number */
+#define BOARD_INITPINS_VPW_TX_PIN_MASK (1U << 6U)      /*!<@brief PORT pin mask */
+/* @} */
 
 /*! @name PORTC7 (number 51), VPW_RX
   @{ */
 
 /* Symbols to be used with PORT driver */
-    #define BOARD_INITPINS_VPW_RX_PORT PORTC          /*!<@brief PORT peripheral base pointer */
-    #define BOARD_INITPINS_VPW_RX_PIN 7U              /*!<@brief PORT pin number */
-    #define BOARD_INITPINS_VPW_RX_PIN_MASK (1U << 7U) /*!<@brief PORT pin mask */
-                                                      /* @} */
+#define BOARD_INITPINS_VPW_RX_PORT PORTC               /*!<@brief PORT peripheral base pointer */
+#define BOARD_INITPINS_VPW_RX_PIN 7U                   /*!<@brief PORT pin number */
+#define BOARD_INITPINS_VPW_RX_PIN_MASK (1U << 7U)      /*!<@brief PORT pin mask */
+/* @} */
 
 /*! @name PORTC0 (number 26), C3
   @{ */
 
 /* Symbols to be used with PORT driver */
-    #define BOARD_INITPINS_C3_PORT PORTC          /*!<@brief PORT peripheral base pointer */
-    #define BOARD_INITPINS_C3_PIN 0U              /*!<@brief PORT pin number */
-    #define BOARD_INITPINS_C3_PIN_MASK (1U << 0U) /*!<@brief PORT pin mask */
-                                                  /* @} */
+#define BOARD_INITPINS_C3_PORT PORTC               /*!<@brief PORT peripheral base pointer */
+#define BOARD_INITPINS_C3_PIN 0U                   /*!<@brief PORT pin number */
+#define BOARD_INITPINS_C3_PIN_MASK (1U << 0U)      /*!<@brief PORT pin mask */
+/* @} */
 
-    /*! @name PORTC1 (number 25), C2
+/*! @name PORTC1 (number 25), C2
   @{ */
 
 /* Symbols to be used with PORT driver */
-    #define BOARD_INITPINS_C2_PORT PORTC          /*!<@brief PORT peripheral base pointer */
-    #define BOARD_INITPINS_C2_PIN 1U              /*!<@brief PORT pin number */
-    #define BOARD_INITPINS_C2_PIN_MASK (1U << 1U) /*!<@brief PORT pin mask */
-                                                  /* @} */
+#define BOARD_INITPINS_C2_PORT PORTC               /*!<@brief PORT peripheral base pointer */
+#define BOARD_INITPINS_C2_PIN 1U                   /*!<@brief PORT pin number */
+#define BOARD_INITPINS_C2_PIN_MASK (1U << 1U)      /*!<@brief PORT pin mask */
+/* @} */
 
 /*! @name PORTC17 (number 27), C1
   @{ */
 
 /* Symbols to be used with PORT driver */
-    #define BOARD_INITPINS_C1_PORT PORTC           /*!<@brief PORT peripheral base pointer */
-    #define BOARD_INITPINS_C1_PIN 17U              /*!<@brief PORT pin number */
-    #define BOARD_INITPINS_C1_PIN_MASK (1U << 17U) /*!<@brief PORT pin mask */
-                                                   /* @} */
+#define BOARD_INITPINS_C1_PORT PORTC                /*!<@brief PORT peripheral base pointer */
+#define BOARD_INITPINS_C1_PIN 17U                   /*!<@brief PORT pin number */
+#define BOARD_INITPINS_C1_PIN_MASK (1U << 17U)      /*!<@brief PORT pin mask */
+/* @} */
 
 /*!
  * @brief Configures pin routing and optionally pin electrical features.

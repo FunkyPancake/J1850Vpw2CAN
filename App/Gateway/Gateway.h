@@ -1,11 +1,18 @@
 /*
  * Copyright (c) 2023, FunkyPuncake
- *    All rights reserved
- *    This file is part of the KeWjGwTcu. Redistribution and use in source and
- *    binary forms, with or without modification, are permitted exclusively
- *    under the terms of the GPL license. You should have received
- *    a copy of the license with this file.
  *
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ *     GNU General Public License for more details.
+ *
+ *     You should have received a copy of the GNU General Public License
+ *     along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef KEWJGWTCU_GATEWAY_H
@@ -16,28 +23,54 @@
 #include "GearSelector.h"
 #include "semphr.h"
 #include <memory>
-namespace App
-{
-    class Gateway
-    {
-    private:
-        static constexpr int outBaseId{0x600};
-        SemaphoreHandle_t _mutex;
-        uint16_t _speedFR, _speedFL, _speedRR, _speedRL, _rpm, _ppsDriver;
-        uint8_t _brake;
 
-        GearSelector::Gear _gear;
-        GearSelector::DriveMode _mode;
+namespace App {
+    class Gateway {
+    private:
+        SemaphoreHandle_t _mutex{};
+        uint16_t speedFR_{}, speedFL_{}, speedRR_{}, speedRL_{}, rpm_{}, ppsDriver_{}, requestedTorqueAsMap_{}, oilTemp_{}, coolantTemp_{};
+        uint16_t engineLoad{}, boostPressure{};
+        uint8_t _brake{};
+
+        int MutexWaitTicks{100};
+        uint16_t torqueAsVe_{};
+        GearSelector::Gear _gear{};
+        GearSelector::DriveMode _mode{};
+
         std::shared_ptr<KeCommon::Bsw::Can::ICan> _can1, _can2;
-        KeCommon::Bsw::Can::CanFrame canFrame;
-        void Frame200Handler(KeCommon::Bsw::Can::CanFrame frame);
-        void Frame208Handler(KeCommon::Bsw::Can::CanFrame frame);
+
+        void OnNewFrame200(const KeCommon::Bsw::Can::CanFrame &frame);
+
+        void OnNewFrame208(const KeCommon::Bsw::Can::CanFrame &frame);
+
+        void OnNewFrame300(const KeCommon::Bsw::Can::CanFrame &frame);
+
+        void OnNewFrame301(const KeCommon::Bsw::Can::CanFrame &frame);
+
+        void UpdateFrame218();
+
+        void UpdateFrame520();
+
+        void UpdateFrame523();
+
+        void UpdateFrame525();
+
+        void UpdateFrame526();
+
+        void UpdateFrame530();
+
+        void UpdateFrame536();
+
+
+        void UpdateFrameBase550();
 
     public:
+
         Gateway(std::shared_ptr<KeCommon::Bsw::Can::ICan> can1, std::shared_ptr<KeCommon::Bsw::Can::ICan> can2);
+
         void SetGearAndMode(GearSelector::Gear gear, GearSelector::DriveMode mode);
+
         void MainFunction();
-        std::shared_ptr<KeCommon::Bsw::Can::ICan> GetCan(uint8_t busId);
     };
 
 }// namespace App

@@ -9,17 +9,17 @@
 /***********************************************************************************************************************
  * Included files
  **********************************************************************************************************************/
-#include "fsl_adc12.h"
-#include "fsl_clock.h"
-#include "fsl_common.h"
-#include "fsl_dmamux.h"
 #include "fsl_edma.h"
+#include "fsl_dmamux.h"
+#include "fsl_common.h"
 #include "fsl_flexcan.h"
-#include "fsl_ftm.h"
+#include "fsl_clock.h"
 #include "fsl_lpspi.h"
 #include "fsl_lpspi_freertos.h"
+#include "fsl_ftm.h"
 #include "fsl_lpuart.h"
 #include "fsl_lpuart_edma.h"
+#include "fsl_adc12.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -37,12 +37,6 @@ extern "C" {
 #define CAN0_PERIPHERAL CAN0
 /* Definition of the clock source frequency */
 #define CAN0_CLOCK_SOURCE 84000000UL
-/* CAN0 interrupt vector ID (number). */
-#define CAN0_CAN_ORED_MB_IRQN CAN0_ORed_Message_buffer_IRQn
-/* CAN0 interrupt vector priority. */
-#define CAN0_CAN_ORED_MB_IRQ_PRIORITY 1
-/* CAN0 interrupt handler identifier. */
-#define CAN0_CAN_ORED_MB_IRQHANDLER CAN0_ORed_Message_buffer_IRQHandler
 /* BOARD_InitPeripherals defines for LPSPI0 */
 /* Definition of peripheral ID */
 #define LPSPI0_PERIPHERAL LPSPI0
