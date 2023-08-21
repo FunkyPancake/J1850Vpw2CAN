@@ -1,15 +1,25 @@
 /*
  * Copyright (c) 2023, FunkyPuncake
- *    All rights reserved
- *    This file is part of the KeWjGwTcu. Redistribution and use in source and
- *    binary forms, with or without modification, are permitted exclusively
- *    under the terms of the GPL license. You should have received
- *    a copy of the license with this file.
  *
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ *     GNU General Public License for more details.
+ *
+ *     You should have received a copy of the GNU General Public License
+ *     along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef KEWJGWTCU_GEARSELECTOR_H
 #define KEWJGWTCU_GEARSELECTOR_H
+
+#include <cstdint>
+
 namespace App
 {
     class GearSelector
@@ -18,10 +28,10 @@ namespace App
     public:
         enum class Gear
         {
-            P,
-            R,
-            N,
-            D
+            P = 0x1,
+            R = 0x2,
+            N = 0x4,
+            D = 0x8
         };
         enum class DriveMode
         {
@@ -33,6 +43,10 @@ namespace App
         Gear GetGear();
         DriveMode GetDriveMode();
         void MainFunction();
+
+        void ControlParkSelenoid();
+
+        void SetSpeedAndBrake(int16_t speed, bool brake);
 
     private:
         enum class SelectorPosition
@@ -49,6 +63,12 @@ namespace App
         SelectorPosition GetCurrentPosition();
         Gear _gear;
         DriveMode _driveMode;
+        const int16_t ParkSelenoidSpeedThreshold = 5;
+        const int16_t ParkSelenoidTimerReloadValue = 10;
+        int16_t _parkSelenoidTimer{ParkSelenoidTimerReloadValue};
+        int16_t _speed;
+        bool _parkSelenoidControlState{false};
+        bool _brake;
     };
 }// namespace App
 

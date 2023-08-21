@@ -21,21 +21,22 @@
 #include "CAN/ICan.h"
 #include "FreeRTOS.h"
 #include "GearSelector.h"
+#include "J1850Vpw.h"
 #include "semphr.h"
 #include <memory>
 
 namespace App {
     class Gateway {
     private:
-        SemaphoreHandle_t _mutex{};
-        uint16_t speedFR_{}, speedFL_{}, speedRR_{}, speedRL_{}, rpm_{}, ppsDriver_{}, requestedTorqueAsMap_{}, oilTemp_{}, coolantTemp_{};
+        SemaphoreHandle_t _mutex;
+        uint16_t speedFR_{}, speedFL_{}, speedRR_{}, speedRL_{}, rpm_{}, ppsDriver_{}, oilTemp_{}, coolantTemp_{};
         uint16_t engineLoad{}, boostPressure{};
-        uint8_t _brake{};
-
-        int MutexWaitTicks{100};
         uint16_t torqueAsVe_{};
-        GearSelector::Gear _gear{};
-        GearSelector::DriveMode _mode{};
+        uint8_t _brake{};
+        GearSelector::Gear _gear{GearSelector::Gear::N};
+        GearSelector::DriveMode _mode{GearSelector::DriveMode::Comfort};
+        CDD::Vpw _vpw;
+        int MutexWaitTicks{100};
 
         std::shared_ptr<KeCommon::Bsw::Can::ICan> _can1, _can2;
 
@@ -61,7 +62,6 @@ namespace App {
 
         void UpdateFrame536();
 
-
         void UpdateFrameBase550();
 
     public:
@@ -71,6 +71,10 @@ namespace App {
         void SetGearAndMode(GearSelector::Gear gear, GearSelector::DriveMode mode);
 
         void MainFunction();
+
+        bool GetBrakePressed() const;
+
+        int16_t GetAverageSpeed() const;
     };
 
 }// namespace App

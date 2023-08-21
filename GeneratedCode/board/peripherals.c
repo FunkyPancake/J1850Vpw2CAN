@@ -356,9 +356,9 @@ instance:
   - ftm_main_config:
     - ftm_config:
       - clockSource: 'kFTM_FixedClock'
-      - clockSourceFreq: 'BOARD_BootClockRUN'
-      - timerPrescaler: '1'
-      - timerOutputFrequency: '1Mhz'
+      - clockSourceFreq: 'ClocksTool_DefaultInit'
+      - timerPrescaler: '4'
+      - timerOutputFrequency: '0xfffe'
       - systemClockSource: 'BusInterfaceClock'
       - systemClockSourceFreq: 'ClocksTool_DefaultInit'
       - faultMode: 'kFTM_Fault_Disable'
@@ -413,7 +413,7 @@ instance:
         - edge_aligned_mode: 'kFTM_InputCapture'
         - input_capture:
           - chnNumber: 'kFTM_Chnl_3'
-          - input_capture_edge: 'kFTM_RisingEdge'
+          - input_capture_edge: 'kFTM_RiseAndFallEdge'
           - inputFilterPeriod: '1'
           - enable_chan_irq: 'true'
       - 2:
@@ -423,11 +423,11 @@ instance:
           - chnNumber: 'kFTM_Chnl_0'
           - output_compare_mode: 'kFTM_NoOutputSignal'
           - compareValueStr: '0'
-          - enable_chan_irq: 'false'
+          - enable_chan_irq: 'true'
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS **********/
 /* clang-format on */
 const ftm_config_t FTM3_config = {
-        .prescale = kFTM_Prescale_Divide_1,
+        .prescale = kFTM_Prescale_Divide_4,
         .faultMode = kFTM_Fault_Disable,
         .faultFilterValue = 0,
         .deadTimePrescale = kFTM_Deadtime_Prescale_1,
@@ -445,9 +445,10 @@ static void FTM3_init(void) {
     FTM_Init(FTM3_PERIPHERAL, &FTM3_config);
     FTM_SetTimerPeriod(FTM3_PERIPHERAL, FTM3_TIMER_MODULO_VALUE);
     FTM_SetupOutputCompare(FTM3_PERIPHERAL, kFTM_Chnl_2, kFTM_NoOutputSignal, 0U);
-    FTM_SetupInputCapture(FTM3_PERIPHERAL, kFTM_Chnl_3, kFTM_RisingEdge, 0);
+    FTM_SetupInputCapture(FTM3_PERIPHERAL, kFTM_Chnl_3, kFTM_RiseAndFallEdge, 0);
     FTM_SetupOutputCompare(FTM3_PERIPHERAL, kFTM_Chnl_0, kFTM_NoOutputSignal, 0U);
-    FTM_EnableInterrupts(FTM3_PERIPHERAL, kFTM_Chnl2InterruptEnable | kFTM_Chnl3InterruptEnable);
+    FTM_EnableInterrupts(FTM3_PERIPHERAL,
+                         kFTM_Chnl2InterruptEnable | kFTM_Chnl3InterruptEnable | kFTM_Chnl0InterruptEnable);
     /* Interrupt vector FTM3_IRQn priority settings in the NVIC. */
     NVIC_SetPriority(FTM3_IRQN, FTM3_IRQ_PRIORITY);
     /* Enable interrupt FTM3_IRQn request in the NVIC. */
@@ -492,7 +493,7 @@ instance:
     - edma_channels:
       - enable_rx_edma_channel: 'true'
       - edma_rx_channel:
-        - uid: '1691712597039'
+        - uid: '1692085067380'
         - eDMAn: '0'
         - eDMA_source: 'kDmaRequestMux0LPUART0Rx'
         - enableTriggerInput: 'false'
@@ -504,7 +505,7 @@ instance:
         - enable_custom_name: 'false'
       - enable_tx_edma_channel: 'true'
       - edma_tx_channel:
-        - uid: '1691712597047'
+        - uid: '1692085067386'
         - eDMAn: '1'
         - eDMA_source: 'kDmaRequestMux0LPUART0Tx'
         - enableTriggerInput: 'false'

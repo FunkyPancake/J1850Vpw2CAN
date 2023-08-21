@@ -51,9 +51,9 @@ extern "C" {
 /* Definition of peripheral ID */
 #define FTM3_PERIPHERAL FTM3
 /* Definition of the clock source frequency */
-#define FTM3_CLOCK_SOURCE 21000000UL
+#define FTM3_CLOCK_SOURCE 12000000UL
 /* Definition of the clock source frequency */
-#define FTM3_TIMER_MODULO_VALUE 20
+#define FTM3_TIMER_MODULO_VALUE 65533
 /* FTM3 interrupt vector ID (number). */
 #define FTM3_IRQN FTM3_IRQn
 /* FTM3 interrupt vector priority. */

@@ -15,27 +15,28 @@
 #include "GearSelector.h"
 #include "fsl_gpio.h"
 #include "pin_mux.h"
+
 using namespace App;
 
-App::GearSelector::SelectorPosition App::GearSelector::GetCurrentPosition()
-{
-    auto c2 = GPIO_PinRead(BOARD_INITPINS_C2_GPIO, BOARD_INITPINS_C2_PIN);
-    auto c3 = GPIO_PinRead(BOARD_INITPINS_C3_GPIO, BOARD_INITPINS_C3_PIN);
-    auto c4 = GPIO_PinRead(BOARD_INITPINS_C4_GPIO, BOARD_INITPINS_C4_PIN);
+App::GearSelector::SelectorPosition App::GearSelector::GetCurrentPosition() {
+    auto c2 = 0;
+    auto c3 = 0;
+    auto c4 = 0;
     auto selectorPosition = static_cast<SelectorPosition>(c4 + (c3 << 1) + (c2 << 2));
     return selectorPosition;
 }
-App::GearSelector::Gear App::GearSelector::GetGear()
-{
+
+App::GearSelector::Gear App::GearSelector::GetGear() {
     return _gear;
 }
-App::GearSelector::DriveMode App::GearSelector::GetDriveMode()
-{
+
+App::GearSelector::DriveMode App::GearSelector::GetDriveMode() {
     return _driveMode;
 }
-void App::GearSelector::MainFunction()
-{
+
+void App::GearSelector::MainFunction() {
     auto position = GetCurrentPosition();
+    ControlParkSelenoid();
     switch (position) {
         case SelectorPosition::P:
             _gear = Gear::P;
@@ -67,4 +68,23 @@ void App::GearSelector::MainFunction()
             _driveMode = DriveMode::Eco;
             //TODO: add error notification to diag module
     }
+}
+
+void GearSelector::SetSpeedAndBrake(int16_t speed, bool brake) {
+    _speed = speed;
+    _brake = brake;
+}
+
+void GearSelector::ControlParkSelenoid() {
+    if (_speed < ParkSelenoidSpeedThreshold && _brake) {
+        _parkSelenoidControlState = true;
+        _parkSelenoidTimer = ParkSelenoidTimerReloadValue;
+    } else {
+        if (_parkSelenoidTimer != 0) {
+            _parkSelenoidTimer--;
+            return;
+        }
+        _parkSelenoidControlState = false;
+    }
+    GPIO_PinWrite(BOARD_INITPINS_D1_GPIO, BOARD_INITPINS_D1_PIN, _parkSelenoidControlState ? 1 : 0);
 }

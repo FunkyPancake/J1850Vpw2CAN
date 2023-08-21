@@ -25,7 +25,7 @@ namespace App {
      * @param [in] can2 -> CanTcu can bus
      * */
     Gateway::Gateway(shared_ptr <ICan> can1, shared_ptr <ICan> can2)
-            : _can1(std::move(can1)), _can2(std::move(can2)) {
+            : _vpw(CDD::Vpw()), _can1(std::move(can1)), _can2(std::move(can2)) {
         _mutex = xSemaphoreCreateMutex();
         _can1->RegisterRxFrame(0x200, [this](auto &&PH1) { OnNewFrame200(std::forward<decltype(PH1)>(PH1)); });
         _can1->RegisterRxFrame(0x208, [this](auto &&PH1) { OnNewFrame208(std::forward<decltype(PH1)>(PH1)); });
@@ -176,6 +176,14 @@ namespace App {
             xSemaphoreGive(_mutex);
         }
         _can2->UpdateCyclicFrame(0x550, payload);
+    }
+
+    bool Gateway::GetBrakePressed() const {
+        return _brake == 1;
+    }
+
+    int16_t Gateway::GetAverageSpeed() const {
+        return static_cast<int16_t>((speedRL_ + speedRR_) / 2);
     }
 
 }// namespace App

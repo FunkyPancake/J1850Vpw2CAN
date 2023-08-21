@@ -36,6 +36,7 @@ constexpr UBaseType_t app_task_PRIORITY = (configMAX_PRIORITIES - 1);
 
 [[noreturn]] static void appTask(void *pvParameters)
 {
+    GPIO_PinWrite(BOARD_INITPINS_D1_GPIO, BOARD_INITPINS_D1_PIN, 1);
     constexpr TickType_t xFrequency = MS2TICKS(10);
     auto can1 = std::make_shared<FlexCan>(CAN0, 16);
     auto can2 = std::make_shared<FlexCan>(CAN1, 16);
@@ -45,29 +46,26 @@ constexpr UBaseType_t app_task_PRIORITY = (configMAX_PRIORITIES - 1);
 
     auto canTp = CanTp{*can1};
     auto uds = Uds{&canTp};
-    auto led = 1;
     App::GearSelector gearSelector{};
 
     TickType_t xLastWakeTime = xTaskGetTickCount();
     sbc.Init();
     sbc.ConfigWatchdog(Tle9461::WgTimer200ms);
-
     for (;;) {
-        led ^= 1;
-        GPIO_PinWrite(BOARD_INITPINS_D1_GPIO, BOARD_INITPINS_D1_PIN, led);
+        GPIO_PinWrite(BOARD_INITPINS_D1_GPIO, BOARD_INITPINS_D1_PIN, 0);
         can1->RxTask();
         can2->RxTask();
         uds.MainFunction();
 
+        gearSelector.SetSpeedAndBrake(gateway.GetAverageSpeed(), gateway.GetBrakePressed());
         gearSelector.MainFunction();
         gateway.SetGearAndMode(gearSelector.GetGear(), gearSelector.GetDriveMode());
-
         gateway.MainFunction();
-
         canTp.TxMainFunction();
         can1->TxTask();
         can2->TxTask();
         sbc.RefreshWatchdog();
+        GPIO_PinWrite(BOARD_INITPINS_D1_GPIO, BOARD_INITPINS_D1_PIN, 1);
         vTaskDelayUntil(&xLastWakeTime, xFrequency);
     }
 }
