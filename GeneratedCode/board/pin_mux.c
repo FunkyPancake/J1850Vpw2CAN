@@ -23,6 +23,7 @@ pin_labels:
 - {pin_num: '25', pin_signal: ADC0_SE9/ACMP1_IN3/PTC1/FTM0_CH1/FTM1_CH7, label: C2, identifier: C2}
 - {pin_num: '26', pin_signal: ADC0_SE8/ACMP1_IN4/PTC0/FTM0_CH0/FTM1_CH6, label: C3, identifier: C3}
 - {pin_num: '27', pin_signal: ADC0_SE15/PTC17/FTM1_FLT3/LPI2C1_SCLS, label: C1, identifier: C4;C1}
+- {pin_num: '57', pin_signal: PTA11/FTM1_CH5/LPUART0_RX/FXIO_D1, label: PARKS, identifier: PARKS}
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS ***********
  */
 /* clang-format on */
@@ -38,8 +39,7 @@ pin_labels:
  * Description   : Calls initialization functions.
  *
  * END ****************************************************************************************************************/
-void BOARD_InitBootPins(void)
-{
+void BOARD_InitBootPins(void) {
     BOARD_InitPins();
 }
 
@@ -69,12 +69,13 @@ BOARD_InitPins:
   - {pin_num: '48', peripheral: LPUART0, signal: RX, pin_signal: ADC1_SE0/PTA2/FTM3_CH0/LPI2C0_SDA/EWM_OUT_b/LPUART0_RX}
   - {pin_num: '56', peripheral: CAN1, signal: RX, pin_signal: ADC2_SE5/PTA12/FTM1_CH6/CAN1_RX/LPI2C1_SDAS}
   - {pin_num: '55', peripheral: CAN1, signal: TX, pin_signal: ADC2_SE4/PTA13/FTM1_CH7/CAN1_TX/LPI2C1_SCLS}
-  - {pin_num: '52', peripheral: FTM3, signal: 'CH, 2', pin_signal: ADC1_SE4/PTC6/LPUART1_RX/CAN1_RX/FTM3_CH2}
-  - {pin_num: '51', peripheral: FTM3, signal: 'CH, 3', pin_signal: ADC1_SE5/PTC7/LPUART1_TX/CAN1_TX/FTM3_CH3}
+  - {pin_num: '52', peripheral: FTM3, signal: 'CH, 2', pin_signal: ADC1_SE4/PTC6/LPUART1_RX/CAN1_RX/FTM3_CH2, direction: OUTPUT}
+  - {pin_num: '51', peripheral: FTM3, signal: 'CH, 3', pin_signal: ADC1_SE5/PTC7/LPUART1_TX/CAN1_TX/FTM3_CH3, direction: INPUT, pull_select: up}
   - {pin_num: '45', peripheral: SystemControl, signal: NMI, pin_signal: ADC1_SE3/PTD3/FTM3_CH5/LPSPI1_PCS0/FXIO_D5/TRGMUX_IN4/NMI_b}
   - {pin_num: '26', peripheral: ADC0, signal: 'SE, 8', pin_signal: ADC0_SE8/ACMP1_IN4/PTC0/FTM0_CH0/FTM1_CH6}
   - {pin_num: '25', peripheral: ADC0, signal: 'SE, 9', pin_signal: ADC0_SE9/ACMP1_IN3/PTC1/FTM0_CH1/FTM1_CH7}
   - {pin_num: '27', peripheral: ADC0, signal: 'SE, 15', pin_signal: ADC0_SE15/PTC17/FTM1_FLT3/LPI2C1_SCLS, identifier: C1}
+  - {pin_num: '57', peripheral: GPIOA, signal: 'GPIO, 11', pin_signal: PTA11/FTM1_CH5/LPUART0_RX/FXIO_D1, direction: OUTPUT, gpio_init_state: 'false'}
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS ***********
  */
 /* clang-format on */
@@ -85,8 +86,7 @@ BOARD_InitPins:
  * Description   : Configures pin routing and optionally pin electrical features.
  *
  * END ****************************************************************************************************************/
-void BOARD_InitPins(void)
-{
+void BOARD_InitPins(void) {
     /* Clock Control: Clock enabled */
     CLOCK_EnableClock(kCLOCK_PortA);
     /* Clock Control: Clock enabled */
@@ -98,36 +98,46 @@ void BOARD_InitPins(void)
     /* Clock Control: Clock enabled */
     CLOCK_EnableClock(kCLOCK_PortE);
 
+    gpio_pin_config_t PARKS_config = {
+            .pinDirection = kGPIO_DigitalOutput,
+            .outputLogic = 0U
+    };
+    /* Initialize GPIO functionality on pin PTA11 (pin 57)  */
+    GPIO_PinInit(BOARD_INITPINS_PARKS_GPIO, BOARD_INITPINS_PARKS_PIN, &PARKS_config);
+
     gpio_pin_config_t D3_config = {
-        .pinDirection = kGPIO_DigitalOutput,
-        .outputLogic = 1U
+            .pinDirection = kGPIO_DigitalOutput,
+            .outputLogic = 1U
     };
     /* Initialize GPIO functionality on pin PTB5 (pin 18)  */
     GPIO_PinInit(BOARD_INITPINS_D3_GPIO, BOARD_INITPINS_D3_PIN, &D3_config);
 
     gpio_pin_config_t D4_config = {
-        .pinDirection = kGPIO_DigitalOutput,
-        .outputLogic = 1U
+            .pinDirection = kGPIO_DigitalOutput,
+            .outputLogic = 1U
     };
     /* Initialize GPIO functionality on pin PTE8 (pin 17)  */
     GPIO_PinInit(BOARD_INITPINS_D4_GPIO, BOARD_INITPINS_D4_PIN, &D4_config);
 
     gpio_pin_config_t D1_config = {
-        .pinDirection = kGPIO_DigitalOutput,
-        .outputLogic = 1U
+            .pinDirection = kGPIO_DigitalOutput,
+            .outputLogic = 1U
     };
     /* Initialize GPIO functionality on pin PTE10 (pin 4)  */
     GPIO_PinInit(BOARD_INITPINS_D1_GPIO, BOARD_INITPINS_D1_PIN, &D1_config);
 
     gpio_pin_config_t D2_config = {
-        .pinDirection = kGPIO_DigitalOutput,
-        .outputLogic = 1U
+            .pinDirection = kGPIO_DigitalOutput,
+            .outputLogic = 1U
     };
     /* Initialize GPIO functionality on pin PTE11 (pin 3)  */
     GPIO_PinInit(BOARD_INITPINS_D2_GPIO, BOARD_INITPINS_D2_PIN, &D2_config);
 
     /* PORTA10 (pin 58) is configured as noetm_Trace_SWO */
     PORT_SetPinMux(PORTA, 10U, kPORT_MuxAlt7);
+
+    /* PORTA11 (pin 57) is configured as PTA11 */
+    PORT_SetPinMux(BOARD_INITPINS_PARKS_PORT, BOARD_INITPINS_PARKS_PIN, kPORT_MuxAsGpio);
 
     /* PORTA12 (pin 56) is configured as CAN1_RX */
     PORT_SetPinMux(PORTA, 12U, kPORT_MuxAlt3);
@@ -185,6 +195,14 @@ void BOARD_InitPins(void)
 
     /* PORTC7 (pin 51) is configured as FTM3_CH3 */
     PORT_SetPinMux(BOARD_INITPINS_VPW_RX_PORT, BOARD_INITPINS_VPW_RX_PIN, kPORT_MuxAlt4);
+
+    PORTC->PCR[7] = ((PORTC->PCR[7] &
+                      /* Mask bits to zero which are setting */
+                      (~(PORT_PCR_PS_MASK | PORT_PCR_ISF_MASK)))
+
+                     /* Pull Select: Internal pullup resistor is enabled on the corresponding pin, if the
+                      * corresponding PE field is set. */
+                     | PORT_PCR_PS(kPORT_PullUp));
 
     /* PORTD3 (pin 45) is configured as NMI_b */
     PORT_SetPinMux(PORTD, 3U, kPORT_MuxAlt7);

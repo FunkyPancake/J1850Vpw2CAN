@@ -34,6 +34,7 @@
                <pin_label pin_num="25" pin_signal="ADC0_SE9/ACMP1_IN3/PTC1/FTM0_CH1/FTM1_CH7" label="C2" identifier="C2"/>
                <pin_label pin_num="26" pin_signal="ADC0_SE8/ACMP1_IN4/PTC0/FTM0_CH0/FTM1_CH6" label="C3" identifier="C3"/>
                <pin_label pin_num="27" pin_signal="ADC0_SE15/PTC17/FTM1_FLT3/LPI2C1_SCLS" label="C1" identifier="C4;C1"/>
+               <pin_label pin_num="57" pin_signal="PTA11/FTM1_CH5/LPUART0_RX/FXIO_D1" label="PARKS" identifier="PARKS"/>
             </pin_labels>
             <external_user_signals>
                <properties/>
@@ -155,14 +156,29 @@
                   <pin peripheral="LPUART0" signal="RX" pin_num="48" pin_signal="ADC1_SE0/PTA2/FTM3_CH0/LPI2C0_SDA/EWM_OUT_b/LPUART0_RX"/>
                   <pin peripheral="CAN1" signal="RX" pin_num="56" pin_signal="ADC2_SE5/PTA12/FTM1_CH6/CAN1_RX/LPI2C1_SDAS"/>
                   <pin peripheral="CAN1" signal="TX" pin_num="55" pin_signal="ADC2_SE4/PTA13/FTM1_CH7/CAN1_TX/LPI2C1_SCLS"/>
-                  <pin peripheral="FTM3" signal="CH, 2" pin_num="52" pin_signal="ADC1_SE4/PTC6/LPUART1_RX/CAN1_RX/FTM3_CH2"/>
-                  <pin peripheral="FTM3" signal="CH, 3" pin_num="51" pin_signal="ADC1_SE5/PTC7/LPUART1_TX/CAN1_TX/FTM3_CH3"/>
+                  <pin peripheral="FTM3" signal="CH, 2" pin_num="52" pin_signal="ADC1_SE4/PTC6/LPUART1_RX/CAN1_RX/FTM3_CH2">
+                     <pin_features>
+                        <pin_feature name="direction" value="OUTPUT"/>
+                     </pin_features>
+                  </pin>
+                  <pin peripheral="FTM3" signal="CH, 3" pin_num="51" pin_signal="ADC1_SE5/PTC7/LPUART1_TX/CAN1_TX/FTM3_CH3">
+                     <pin_features>
+                        <pin_feature name="direction" value="INPUT"/>
+                        <pin_feature name="pull_select" value="up"/>
+                     </pin_features>
+                  </pin>
                   <pin peripheral="SystemControl" signal="NMI" pin_num="45" pin_signal="ADC1_SE3/PTD3/FTM3_CH5/LPSPI1_PCS0/FXIO_D5/TRGMUX_IN4/NMI_b"/>
                   <pin peripheral="ADC0" signal="SE, 8" pin_num="26" pin_signal="ADC0_SE8/ACMP1_IN4/PTC0/FTM0_CH0/FTM1_CH6"/>
                   <pin peripheral="ADC0" signal="SE, 9" pin_num="25" pin_signal="ADC0_SE9/ACMP1_IN3/PTC1/FTM0_CH1/FTM1_CH7"/>
                   <pin peripheral="ADC0" signal="SE, 15" pin_num="27" pin_signal="ADC0_SE15/PTC17/FTM1_FLT3/LPI2C1_SCLS">
                      <pin_features>
                         <pin_feature name="identifier" value="C1"/>
+                     </pin_features>
+                  </pin>
+                  <pin peripheral="GPIOA" signal="GPIO, 11" pin_num="57" pin_signal="PTA11/FTM1_CH5/LPUART0_RX/FXIO_D1">
+                     <pin_features>
+                        <pin_feature name="direction" value="OUTPUT"/>
+                        <pin_feature name="gpio_init_state" value="false"/>
                      </pin_features>
                   </pin>
                </pins>
@@ -224,6 +240,7 @@
                   <clock_output id="LPO_clock.outFreq" value="128 kHz" locked="false" accuracy=""/>
                   <clock_output id="PCC.PCC_ADC0_CLK.outFreq" value="12 MHz" locked="false" accuracy=""/>
                   <clock_output id="PCC.PCC_FTM3_CLK.outFreq" value="12 MHz" locked="false" accuracy=""/>
+                  <clock_output id="PCC.PCC_LPIT0_CLK.outFreq" value="12 MHz" locked="false" accuracy=""/>
                   <clock_output id="PCC.PCC_LPSPI0_CLK.outFreq" value="10.5 MHz" locked="false" accuracy=""/>
                   <clock_output id="PCC.PCC_LPSPI1_CLK.outFreq" value="10.5 MHz" locked="false" accuracy=""/>
                   <clock_output id="PCC.PCC_LPUART0_CLK.outFreq" value="10.5 MHz" locked="false" accuracy=""/>
@@ -240,6 +257,7 @@
                   <setting id="powerMode" value="HSRUN" locked="false"/>
                   <setting id="PCC.PCC_ADC0_SEL.sel" value="SCG.SOSCDIV2_CLK" locked="false"/>
                   <setting id="PCC.PCC_FTM3_SEL.sel" value="SCG.SOSCDIV1_CLK" locked="false"/>
+                  <setting id="PCC.PCC_LPIT0_SEL.sel" value="SCG.SOSCDIV2_CLK" locked="false"/>
                   <setting id="PCC.PCC_LPSPI0_SEL.sel" value="SCG.PLLDIV2_CLK" locked="false"/>
                   <setting id="PCC.PCC_LPSPI1_SEL.sel" value="SCG.PLLDIV2_CLK" locked="false"/>
                   <setting id="PCC.PCC_LPUART0_SEL.sel" value="SCG.PLLDIV2_CLK" locked="false"/>
@@ -329,6 +347,16 @@
                   <data type="Version">2.0.1</data>
                </feature>
             </dependency>
+            <dependency resourceType="SWComponent" resourceId="platform.drivers.lpit" description="LPIT Driver not found in the toolchain/IDE project. Project will not compile!" problem_level="2" source="Peripherals">
+               <feature name="enabled" evaluation="equal">
+                  <data type="Boolean">true</data>
+               </feature>
+            </dependency>
+            <dependency resourceType="SWComponent" resourceId="platform.drivers.lpit" description="Unsupported version of the LPIT Driver in the toolchain/IDE project. Required: ${required_value}, actual: ${actual_value}. Project might not compile correctly." problem_level="1" source="Peripherals">
+               <feature name="version" evaluation="greaterOrEqual">
+                  <data type="Version">2.0.0</data>
+               </feature>
+            </dependency>
          </dependencies>
          <generated_project_files>
             <file path="board/peripherals.c" update_enabled="true"/>
@@ -400,6 +428,16 @@
                   <dependency resourceType="ClockOutput" resourceId="PCC.PCC_FTM3_CLK" description="FTM3 clock is inactive." problem_level="2" source="Peripherals:BOARD_InitPeripherals">
                      <feature name="frequency" evaluation="greaterThan">
                         <data type="Frequency" unit="Hz">0</data>
+                     </feature>
+                  </dependency>
+                  <dependency resourceType="PeripheralUnifiedSignal" resourceId="FTM3.tmr_ch.2" description="Signal CH2 of peripheral FTM3 is not routed" problem_level="1" source="Peripherals:BOARD_InitPeripherals">
+                     <feature name="routed" evaluation="equal">
+                        <data type="Boolean">true</data>
+                     </feature>
+                  </dependency>
+                  <dependency resourceType="PeripheralUnifiedSignal" resourceId="FTM3.tmr_ch.2" description="Direction of signal CH2 of peripheral FTM3 is set as input but it will be used as output" problem_level="1" source="Peripherals:BOARD_InitPeripherals">
+                     <feature name="direction" evaluation="notEqualIgnoreCase">
+                        <data type="String">INPUT</data>
                      </feature>
                   </dependency>
                   <dependency resourceType="PeripheralUnifiedSignal" resourceId="FTM3.tmr_ch.3" description="Signal CH3 of peripheral FTM3 is not routed" problem_level="1" source="Peripherals:BOARD_InitPeripherals">
@@ -486,19 +524,24 @@
                         <data type="String">ADC0.adc_trigger.H</data>
                      </feature>
                   </dependency>
-                  <dependency resourceType="PeripheralUnifiedSignal" resourceId="ADC0.adc_se.11" description="Signal SE, channel 11 is not routed." problem_level="1" source="Peripherals:BOARD_InitPeripherals">
+                  <dependency resourceType="PeripheralUnifiedSignal" resourceId="ADC0.adc_se.15" description="Signal SE, channel 15 is not routed." problem_level="1" source="Peripherals:BOARD_InitPeripherals">
                      <feature name="routed" evaluation="">
                         <data type="Boolean">true</data>
                      </feature>
                   </dependency>
-                  <dependency resourceType="PeripheralUnifiedSignal" resourceId="ADC0.adc_se.11" description="Signal SE, channel 11 is not routed." problem_level="1" source="Peripherals:BOARD_InitPeripherals">
+                  <dependency resourceType="PeripheralUnifiedSignal" resourceId="ADC0.adc_se.9" description="Signal SE, channel 9 is not routed." problem_level="1" source="Peripherals:BOARD_InitPeripherals">
                      <feature name="routed" evaluation="">
                         <data type="Boolean">true</data>
                      </feature>
                   </dependency>
-                  <dependency resourceType="PeripheralUnifiedSignal" resourceId="ADC0.adc_se.11" description="Signal SE, channel 11 is not routed." problem_level="1" source="Peripherals:BOARD_InitPeripherals">
+                  <dependency resourceType="PeripheralUnifiedSignal" resourceId="ADC0.adc_se.8" description="Signal SE, channel 8 is not routed." problem_level="1" source="Peripherals:BOARD_InitPeripherals">
                      <feature name="routed" evaluation="">
                         <data type="Boolean">true</data>
+                     </feature>
+                  </dependency>
+                  <dependency resourceType="ClockOutput" resourceId="PCC.PCC_LPIT0_CLK" description="LPIT0 clock is inactive." problem_level="2" source="Peripherals:BOARD_InitPeripherals">
+                     <feature name="frequency" evaluation="greaterThan">
+                        <data type="Frequency" unit="Hz">0</data>
                      </feature>
                   </dependency>
                </dependencies>
@@ -705,9 +748,7 @@
                               </selected>
                            </set>
                            <set name="reloadPoints">
-                              <selected>
-                                 <id>kFTM_CntMax</id>
-                              </selected>
+                              <selected/>
                            </set>
                            <set name="extTriggers">
                               <selected/>
@@ -741,9 +782,9 @@
                               <setting name="edge_aligned_mode" value="kFTM_OutputCompare"/>
                               <struct name="output_compare">
                                  <setting name="chnNumber" value="kFTM_Chnl_2"/>
-                                 <setting name="output_compare_mode" value="kFTM_NoOutputSignal"/>
+                                 <setting name="output_compare_mode" value="kFTM_ToggleOnMatch"/>
                                  <setting name="compareValueStr" value="0"/>
-                                 <setting name="enable_chan_irq" value="true"/>
+                                 <setting name="enable_chan_irq" value="false"/>
                               </struct>
                            </struct>
                            <struct name="1">
@@ -795,7 +836,7 @@
                         <struct name="edma_channels">
                            <setting name="enable_rx_edma_channel" value="true"/>
                            <struct name="edma_rx_channel">
-                              <setting name="uid" value="1692085067380"/>
+                              <setting name="uid" value="1692683194258"/>
                               <setting name="eDMAn" value="0"/>
                               <setting name="eDMA_source" value="kDmaRequestMux0LPUART0Rx"/>
                               <setting name="enableTriggerInput" value="false"/>
@@ -809,7 +850,7 @@
                            </struct>
                            <setting name="enable_tx_edma_channel" value="true"/>
                            <struct name="edma_tx_channel">
-                              <setting name="uid" value="1692085067386"/>
+                              <setting name="uid" value="1692683194261"/>
                               <setting name="eDMAn" value="1"/>
                               <setting name="eDMA_source" value="kDmaRequestMux0LPUART0Tx"/>
                               <setting name="enableTriggerInput" value="false"/>
@@ -831,9 +872,9 @@
                      </config_set>
                   </instance>
                   <instance name="DMA" uuid="4f1eb881-e531-45a7-a448-8c4a2955c1e5" type="edma" type_id="edma_6d0dd4e17e2f179c7d42d98767129ede" mode="basic" peripheral="DMA" enabled="true" comment="" custom_name_enabled="false" editing_lock="false">
-                     <config_set name="fsl_edma" quick_selection="default">
+                     <config_set name="fsl_edma">
                         <struct name="common_settings">
-                           <setting name="enableContinuousLinkMode" value="false"/>
+                           <setting name="enableContinuousLinkMode" value="true"/>
                            <setting name="enableHaltOnError" value="true"/>
                            <setting name="enableRoundRobinArbitration" value="false"/>
                            <setting name="enableDebugMode" value="false"/>
@@ -841,8 +882,43 @@
                         <array name="dma_table">
                            <struct name="0"/>
                            <struct name="1"/>
+                           <struct name="2"/>
                         </array>
-                        <array name="edma_channels"/>
+                        <array name="edma_channels">
+                           <struct name="0">
+                              <setting name="apiMode" value="nontransTCD"/>
+                              <struct name="edma_channel">
+                                 <setting name="channel_prefix_id" value="CH0"/>
+                                 <setting name="uid" value="1692661534018"/>
+                                 <setting name="eDMAn" value="2"/>
+                                 <setting name="eDMA_source" value="kDmaRequestMux0ADC0"/>
+                                 <setting name="enableTriggerInput" value="true"/>
+                                 <setting name="init_channel_priority" value="false"/>
+                                 <struct name="edma_channel_Preemption">
+                                    <setting name="enableChannelPreemption" value="false"/>
+                                    <setting name="enablePreemptAbility" value="false"/>
+                                    <setting name="channelPriority" value="0"/>
+                                 </struct>
+                              </struct>
+                              <setting name="resetChannel" value="false"/>
+                              <setting name="enableChannelRequest" value="true"/>
+                              <setting name="enableAsyncRequest" value="false"/>
+                              <array name="tcd_configuration"/>
+                              <setting name="constantTCD" value="false"/>
+                              <setting name="initializedTCD" value="0"/>
+                              <set name="irqSources">
+                                 <selected/>
+                              </set>
+                              <setting name="init_interruptsEnable" value="false"/>
+                              <struct name="interrupt_channel">
+                                 <setting name="IRQn" value="DMA2_IRQn"/>
+                                 <setting name="enable_interrrupt" value="enabled"/>
+                                 <setting name="enable_priority" value="false"/>
+                                 <setting name="priority" value="0"/>
+                                 <setting name="enable_custom_name" value="false"/>
+                              </struct>
+                           </struct>
+                        </array>
                         <struct name="errInterruptConfig">
                            <setting name="enableErrInterrupt" value="false"/>
                            <struct name="errorInterrupt">
@@ -974,10 +1050,10 @@
                            <setting name="referenceVoltageSource" value="kADC12_ReferenceVoltageSourceVref"/>
                            <setting name="clockSource" value="kADC12_ClockSourceAlt0"/>
                            <setting name="clockSourceFreq" value="ClocksTool_DefaultInit"/>
-                           <setting name="clockDivider" value="kADC12_ClockDivider1"/>
+                           <setting name="clockDivider" value="kADC12_ClockDivider2"/>
                            <setting name="resolution" value="kADC12_Resolution12Bit"/>
                            <setting name="sampleClockCount" value="13"/>
-                           <setting name="enableContinuousConversion" value="false"/>
+                           <setting name="enableContinuousConversion" value="true"/>
                         </struct>
                         <struct name="adc12HardwareCompareConfig">
                            <setting name="hardwareCompareModeEnable" value="false"/>
@@ -991,18 +1067,52 @@
                         <array name="adc12_channels_config">
                            <struct name="0">
                               <setting name="channelName" value=""/>
-                              <setting name="channelNumber" value="SE.11"/>
+                              <setting name="channelNumber" value="SE.15"/>
                               <setting name="enableInterruptOnConversionCompleted" value="false"/>
                            </struct>
                            <struct name="1">
                               <setting name="channelName" value=""/>
-                              <setting name="channelNumber" value="SE.11"/>
+                              <setting name="channelNumber" value="SE.9"/>
                               <setting name="enableInterruptOnConversionCompleted" value="false"/>
                            </struct>
                            <struct name="2">
                               <setting name="channelName" value=""/>
-                              <setting name="channelNumber" value="SE.11"/>
+                              <setting name="channelNumber" value="SE.8"/>
                               <setting name="enableInterruptOnConversionCompleted" value="false"/>
+                           </struct>
+                        </array>
+                     </config_set>
+                  </instance>
+                  <instance name="LPIT0" uuid="892ce9a6-7304-4474-a7c5-20344c202dab" type="lpit" type_id="lpit_8e4186d834c8d9f4b6c0dadcc9dc2f05" mode="LPIT_GENERAL" peripheral="LPIT0" enabled="true" comment="" custom_name_enabled="false" editing_lock="false">
+                     <config_set name="fsl_lpit">
+                        <struct name="lpitConfig">
+                           <setting name="enableRunInDebug" value="false"/>
+                           <setting name="enableRunInDoze" value="false"/>
+                        </struct>
+                        <struct name="timingConfig">
+                           <setting name="clockSource" value="AsyncPeripheralClock"/>
+                           <setting name="clockSourceFreq" value="ClocksTool_DefaultInit"/>
+                        </struct>
+                        <array name="channels">
+                           <struct name="0">
+                              <setting name="lpitChannelPrefixID" value="Channel_0"/>
+                              <setting name="channelNumber" value="0"/>
+                              <setting name="enableChain" value="false"/>
+                              <setting name="timerMode" value="kLPIT_PeriodicCounter"/>
+                              <setting name="timerPeriod" value="1khz"/>
+                              <setting name="lpit_trigger_select_t" value="internal_trigger_0"/>
+                              <setting name="enableReloadOnTriggerBool" value="true"/>
+                              <setting name="enableStopOnTimeout" value="false"/>
+                              <setting name="enableStartOnTriggerBool" value="false"/>
+                              <setting name="startTimer" value="false"/>
+                              <setting name="enableInterrupt" value="false"/>
+                              <struct name="interrupt">
+                                 <setting name="IRQn" value="LPIT0_IRQn"/>
+                                 <setting name="enable_interrrupt" value="enabled"/>
+                                 <setting name="enable_priority" value="false"/>
+                                 <setting name="priority" value="0"/>
+                                 <setting name="enable_custom_name" value="false"/>
+                              </struct>
                            </struct>
                         </array>
                      </config_set>

@@ -34,7 +34,7 @@ if (CMAKE_BUILD_TYPE MATCHES Debug)
             SDK_DEBUGCONSOLE=1
             __MCUXPRESSO
             __USE_CMSIS
-            DEBUG
+            NDEBUG
             __NEWLIB__
             )
     target_link_directories(${TARGET_NAME} PRIVATE KeCommon/nxp/linker)

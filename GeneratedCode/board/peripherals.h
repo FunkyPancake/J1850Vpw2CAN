@@ -20,6 +20,7 @@
 #include "fsl_lpuart.h"
 #include "fsl_lpuart_edma.h"
 #include "fsl_adc12.h"
+#include "fsl_lpit.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -33,6 +34,12 @@ extern "C" {
 #define DMA_DMA_BASEADDR DMA0
 /* Associated DMAMUX device that is used for muxing of requests. */
 #define DMA_DMAMUX_BASEADDR DMAMUX
+
+/* Channel CH0 definitions */
+/* DMA eDMA source request. */
+#define DMA_CH0_DMA_REQUEST kDmaRequestMux0ADC0
+/* Selected eDMA channel number. */
+#define DMA_CH0_DMA_CHANNEL 2
 /* Definition of peripheral ID */
 #define CAN0_PERIPHERAL CAN0
 /* Definition of the clock source frequency */
@@ -90,6 +97,15 @@ extern "C" {
 #define ADC0_IRQN ADC0_IRQn
 /* ADC0 interrupt handler identifier. */
 #define ADC0_IRQHANDLER ADC0_IRQHandler
+/* BOARD_InitPeripherals defines for LPIT0 */
+/* Definition of peripheral ID. */
+#define LPIT0_PERIPHERAL LPIT0
+/* Definition of clock source frequency. */
+#define LPIT0_CLK_FREQ 12000000UL
+/* Definition of ticks count for channel Channel_0. */
+#define LPIT0_CHANNEL_0_TICKS 11999U
+/* Definition of channel kLPIT_Chnl_0 ID */
+#define LPIT0_CHANNEL_0 kLPIT_Chnl_0
 
 /***********************************************************************************************************************
  * Global variables
@@ -114,6 +130,8 @@ extern flexcan_rx_fifo_config_t CAN1_rx_fifo_config;
 extern const adc12_config_t ADC0_config;
 extern adc12_channel_config_t ADC0_channelsConfig[3];
 extern const adc12_hardware_average_mode_t ADC0_hardwareAverageConfig;
+extern const lpit_config_t LPIT0_config;
+extern const lpit_chnl_params_t LPIT0_Channel_0_struct;
 
 /***********************************************************************************************************************
  * Initialization functions

@@ -86,5 +86,5 @@ void GearSelector::ControlParkSelenoid() {
         }
         _parkSelenoidControlState = false;
     }
-    GPIO_PinWrite(BOARD_INITPINS_D1_GPIO, BOARD_INITPINS_D1_PIN, _parkSelenoidControlState ? 1 : 0);
+    GPIO_PinWrite(BOARD_INITPINS_PARKS_GPIO, BOARD_INITPINS_PARKS_PIN, _parkSelenoidControlState ? 1 : 0);
 }

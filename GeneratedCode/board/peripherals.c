@@ -68,14 +68,42 @@ instance:
 - config_sets:
   - fsl_edma:
     - common_settings:
-      - enableContinuousLinkMode: 'false'
+      - enableContinuousLinkMode: 'true'
       - enableHaltOnError: 'true'
       - enableRoundRobinArbitration: 'false'
       - enableDebugMode: 'false'
     - dma_table:
       - 0: []
       - 1: []
-    - edma_channels: []
+      - 2: []
+    - edma_channels:
+      - 0:
+        - apiMode: 'nontransTCD'
+        - edma_channel:
+          - channel_prefix_id: 'CH0'
+          - uid: '1692661534018'
+          - eDMAn: '2'
+          - eDMA_source: 'kDmaRequestMux0ADC0'
+          - enableTriggerInput: 'true'
+          - init_channel_priority: 'false'
+          - edma_channel_Preemption:
+            - enableChannelPreemption: 'false'
+            - enablePreemptAbility: 'false'
+            - channelPriority: '0'
+        - resetChannel: 'false'
+        - enableChannelRequest: 'true'
+        - enableAsyncRequest: 'false'
+        - tcd_configuration: []
+        - constantTCD: 'false'
+        - initializedTCD: '0'
+        - irqSources: ''
+        - init_interruptsEnable: 'false'
+        - interrupt_channel:
+          - IRQn: 'DMA2_IRQn'
+          - enable_interrrupt: 'enabled'
+          - enable_priority: 'false'
+          - priority: '0'
+          - enable_custom_name: 'false'
     - errInterruptConfig:
       - enableErrInterrupt: 'false'
       - errorInterrupt:
@@ -84,19 +112,27 @@ instance:
         - enable_priority: 'false'
         - priority: '0'
         - enable_custom_name: 'false'
-    - quick_selection: 'default'
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS **********/
 /* clang-format on */
 const edma_config_t DMA_config = {
-  .enableContinuousLinkMode = false,
-  .enableHaltOnError = true,
-  .enableRoundRobinArbitration = false,
-  .enableDebugMode = false
+        .enableContinuousLinkMode = true,
+        .enableHaltOnError = true,
+        .enableRoundRobinArbitration = false,
+        .enableDebugMode = false
 };
 
-/* Empty initialization function (commented out)
 static void DMA_init(void) {
-} */
+
+    /* Channel CH0 initialization */
+    /* Set the source kDmaRequestMux0ADC0 request in the DMAMUX */
+    DMAMUX_SetSource(DMA_DMAMUX_BASEADDR, DMA_CH0_DMA_CHANNEL, DMA_CH0_DMA_REQUEST);
+    /* Set the DMA channel 2 periodic trigger */
+    DMAMUX_EnablePeriodTrigger(DMA_DMAMUX_BASEADDR, DMA_CH0_DMA_CHANNEL);
+    /* Enable the channel 2 in the DMAMUX */
+    DMAMUX_EnableChannel(DMA_DMAMUX_BASEADDR, DMA_CH0_DMA_CHANNEL);
+    /* DMA channel 2 peripheral request */
+    EDMA_EnableChannelRequest(DMA_DMA_BASEADDR, DMA_CH0_DMA_CHANNEL);
+}
 
 /***********************************************************************************************************************
  * NVIC initialization code
@@ -383,7 +419,7 @@ instance:
       - deadTimePrescale: 'kFTM_Deadtime_Prescale_1'
       - deadTimePeriod: '0'
       - pwmSyncMode: 'kFTM_SoftwareTrigger'
-      - reloadPoints: 'kFTM_CntMax'
+      - reloadPoints: ''
       - extTriggers: ''
       - chnlInitState: ''
       - chnlPolarity: ''
@@ -405,9 +441,9 @@ instance:
         - edge_aligned_mode: 'kFTM_OutputCompare'
         - output_compare:
           - chnNumber: 'kFTM_Chnl_2'
-          - output_compare_mode: 'kFTM_NoOutputSignal'
+          - output_compare_mode: 'kFTM_ToggleOnMatch'
           - compareValueStr: '0'
-          - enable_chan_irq: 'true'
+          - enable_chan_irq: 'false'
       - 1:
         - channelId: ''
         - edge_aligned_mode: 'kFTM_InputCapture'
@@ -433,7 +469,7 @@ const ftm_config_t FTM3_config = {
         .deadTimePrescale = kFTM_Deadtime_Prescale_1,
         .deadTimeValue = 0,
         .pwmSyncMode = kFTM_SoftwareTrigger,
-        .reloadPoints = kFTM_CntMax,
+        .reloadPoints = 0,
         .extTriggers = 0,
         .chnlInitState = 0,
         .chnlPolarity = 0,
@@ -444,11 +480,10 @@ const ftm_config_t FTM3_config = {
 static void FTM3_init(void) {
     FTM_Init(FTM3_PERIPHERAL, &FTM3_config);
     FTM_SetTimerPeriod(FTM3_PERIPHERAL, FTM3_TIMER_MODULO_VALUE);
-    FTM_SetupOutputCompare(FTM3_PERIPHERAL, kFTM_Chnl_2, kFTM_NoOutputSignal, 0U);
+    FTM_SetupOutputCompare(FTM3_PERIPHERAL, kFTM_Chnl_2, kFTM_ToggleOnMatch, 0U);
     FTM_SetupInputCapture(FTM3_PERIPHERAL, kFTM_Chnl_3, kFTM_RiseAndFallEdge, 0);
     FTM_SetupOutputCompare(FTM3_PERIPHERAL, kFTM_Chnl_0, kFTM_NoOutputSignal, 0U);
-    FTM_EnableInterrupts(FTM3_PERIPHERAL,
-                         kFTM_Chnl2InterruptEnable | kFTM_Chnl3InterruptEnable | kFTM_Chnl0InterruptEnable);
+    FTM_EnableInterrupts(FTM3_PERIPHERAL, kFTM_Chnl3InterruptEnable | kFTM_Chnl0InterruptEnable);
     /* Interrupt vector FTM3_IRQn priority settings in the NVIC. */
     NVIC_SetPriority(FTM3_IRQN, FTM3_IRQ_PRIORITY);
     /* Enable interrupt FTM3_IRQn request in the NVIC. */
@@ -493,7 +528,7 @@ instance:
     - edma_channels:
       - enable_rx_edma_channel: 'true'
       - edma_rx_channel:
-        - uid: '1692085067380'
+        - uid: '1692683194258'
         - eDMAn: '0'
         - eDMA_source: 'kDmaRequestMux0LPUART0Rx'
         - enableTriggerInput: 'false'
@@ -505,7 +540,7 @@ instance:
         - enable_custom_name: 'false'
       - enable_tx_edma_channel: 'true'
       - edma_tx_channel:
-        - uid: '1692085067386'
+        - uid: '1692683194261'
         - eDMAn: '1'
         - eDMA_source: 'kDmaRequestMux0LPUART0Tx'
         - enableTriggerInput: 'false'
@@ -724,10 +759,10 @@ instance:
       - referenceVoltageSource: 'kADC12_ReferenceVoltageSourceVref'
       - clockSource: 'kADC12_ClockSourceAlt0'
       - clockSourceFreq: 'ClocksTool_DefaultInit'
-      - clockDivider: 'kADC12_ClockDivider1'
+      - clockDivider: 'kADC12_ClockDivider2'
       - resolution: 'kADC12_Resolution12Bit'
       - sampleClockCount: '13'
-      - enableContinuousConversion: 'false'
+      - enableContinuousConversion: 'true'
     - adc12HardwareCompareConfig:
       - hardwareCompareModeEnable: 'false'
     - adc12_hardware_average_mode: 'kADC12_HardwareAverageCount16'
@@ -739,57 +774,122 @@ instance:
     - adc12_channels_config:
       - 0:
         - channelName: ''
-        - channelNumber: 'SE.11'
+        - channelNumber: 'SE.15'
         - enableInterruptOnConversionCompleted: 'false'
       - 1:
         - channelName: ''
-        - channelNumber: 'SE.11'
+        - channelNumber: 'SE.9'
         - enableInterruptOnConversionCompleted: 'false'
       - 2:
         - channelName: ''
-        - channelNumber: 'SE.11'
+        - channelNumber: 'SE.8'
         - enableInterruptOnConversionCompleted: 'false'
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS **********/
 /* clang-format on */
 const adc12_config_t ADC0_config = {
         .referenceVoltageSource = kADC12_ReferenceVoltageSourceVref,
         .clockSource = kADC12_ClockSourceAlt0,
-        .clockDivider = kADC12_ClockDivider1,
+        .clockDivider = kADC12_ClockDivider2,
         .resolution = kADC12_Resolution12Bit,
         .sampleClockCount = 13UL,
-        .enableContinuousConversion = false
+        .enableContinuousConversion = true
 };
 adc12_channel_config_t ADC0_channelsConfig[3] = {
         {
-                .channelNumber = 11U,
+                .channelNumber = 15U,
                 .enableInterruptOnConversionCompleted = false
         },
         {
-                .channelNumber = 11U,
+                .channelNumber = 9U,
                 .enableInterruptOnConversionCompleted = false
         },
         {
-                .channelNumber = 11U,
+                .channelNumber = 8U,
                 .enableInterruptOnConversionCompleted = false
         }
 };
 const adc12_hardware_average_mode_t ADC0_hardwareAverageConfig = kADC12_HardwareAverageCount16;
 
 static void ADC0_init(void) {
-  /* Initialize ADC12 converter */
-  ADC12_Init(ADC0_PERIPHERAL, &ADC0_config);
-  /* Set to hardware trigger mode */
-  ADC12_EnableHardwareTrigger(ADC0_PERIPHERAL, true);
-  /* Configure hardware average mode */
-  ADC12_SetHardwareAverage(ADC0_PERIPHERAL, ADC0_hardwareAverageConfig);
-  /* Set the offset value for the conversion result */
-  ADC12_SetOffsetValue(ADC0_PERIPHERAL, (uint32_t) 0);
-  /* Set the gain value for the conversion result */
-  ADC12_SetGainValue(ADC0_PERIPHERAL, 0);
-  /* Perform auto calibration */
-  ADC12_DoAutoCalibration(ADC0_PERIPHERAL);
-  /* Enable generating the DMA trigger when conversion is completed */
-  ADC12_EnableDMA(ADC0_PERIPHERAL, true);
+    /* Initialize ADC12 converter */
+    ADC12_Init(ADC0_PERIPHERAL, &ADC0_config);
+    /* Set to hardware trigger mode */
+    ADC12_EnableHardwareTrigger(ADC0_PERIPHERAL, true);
+    /* Configure hardware average mode */
+    ADC12_SetHardwareAverage(ADC0_PERIPHERAL, ADC0_hardwareAverageConfig);
+    /* Set the offset value for the conversion result */
+    ADC12_SetOffsetValue(ADC0_PERIPHERAL, (uint32_t) 0);
+    /* Set the gain value for the conversion result */
+    ADC12_SetGainValue(ADC0_PERIPHERAL, 0);
+    /* Perform auto calibration */
+    ADC12_DoAutoCalibration(ADC0_PERIPHERAL);
+    /* Enable generating the DMA trigger when conversion is completed */
+    ADC12_EnableDMA(ADC0_PERIPHERAL, true);
+}
+
+/***********************************************************************************************************************
+ * LPIT0 initialization code
+ **********************************************************************************************************************/
+/* clang-format off */
+/* TEXT BELOW IS USED AS SETTING FOR TOOLS *************************************
+instance:
+- name: 'LPIT0'
+- type: 'lpit'
+- mode: 'LPIT_GENERAL'
+- custom_name_enabled: 'false'
+- type_id: 'lpit_8e4186d834c8d9f4b6c0dadcc9dc2f05'
+- functional_group: 'BOARD_InitPeripherals'
+- peripheral: 'LPIT0'
+- config_sets:
+  - fsl_lpit:
+    - lpitConfig:
+      - enableRunInDebug: 'false'
+      - enableRunInDoze: 'false'
+    - timingConfig:
+      - clockSource: 'AsyncPeripheralClock'
+      - clockSourceFreq: 'ClocksTool_DefaultInit'
+    - channels:
+      - 0:
+        - lpitChannelPrefixID: 'Channel_0'
+        - channelNumber: '0'
+        - enableChain: 'false'
+        - timerMode: 'kLPIT_PeriodicCounter'
+        - timerPeriod: '1khz'
+        - lpit_trigger_select_t: 'internal_trigger_0'
+        - enableReloadOnTriggerBool: 'true'
+        - enableStopOnTimeout: 'false'
+        - enableStartOnTriggerBool: 'false'
+        - startTimer: 'false'
+        - enableInterrupt: 'false'
+        - interrupt:
+          - IRQn: 'LPIT0_IRQn'
+          - enable_interrrupt: 'enabled'
+          - enable_priority: 'false'
+          - priority: '0'
+          - enable_custom_name: 'false'
+ * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS **********/
+/* clang-format on */
+const lpit_chnl_params_t LPIT0_Channel_0_struct = {
+        .chainChannel = false,
+        .timerMode = kLPIT_PeriodicCounter,
+        .triggerSource = kLPIT_TriggerSource_Internal,
+        .triggerSelect = kLPIT_Trigger_TimerChn0,
+        .enableReloadOnTrigger = true,
+        .enableStopOnTimeout = false,
+        .enableStartOnTrigger = false
+};
+const lpit_config_t LPIT0_config = {
+        .enableRunInDebug = false,
+        .enableRunInDoze = false
+};
+
+static void LPIT0_init(void) {
+    /* Initialize the LPIT. */
+    LPIT_Init(LPIT0_PERIPHERAL, &LPIT0_config);
+    /* Setup channel 0. */
+    LPIT_SetupChannel(LPIT0_PERIPHERAL, LPIT0_CHANNEL_0, &LPIT0_Channel_0_struct);
+    /* Set channel 0 period to 12000 ticks. */
+    LPIT_SetTimerPeriod(LPIT0_PERIPHERAL, LPIT0_CHANNEL_0, LPIT0_CHANNEL_0_TICKS);
 }
 
 /***********************************************************************************************************************
@@ -802,12 +902,14 @@ void BOARD_InitPeripherals(void)
   EDMA_Init(DMA_DMA_BASEADDR, &DMA_config);
 
   /* Initialize components */
+    DMA_init();
   CAN0_init();
   LPSPI0_init();
   FTM3_init();
   LPUART0_init();
   CAN1_init();
   ADC0_init();
+    LPIT0_init();
 }
 
 /***********************************************************************************************************************
