@@ -60,57 +60,26 @@ void Vpw::J1850VPW_ByteToBits(uint8_t *byteBuf, uint16_t len) {
     VPW_TxBuf[idx] = EOF_IDX;
 }
 
-uint16_t Vpw::J1850VPW_BitsToByte(uint8_t *byteBuf) {
-    uint16_t i, idx;
-    int j;
-    uint16_t len;
-    uint8_t cBit, pSymIdx, cSymIdx;
-    idx = 1;
-    cBit = 1;
-    pSymIdx = 1;
-    len = 0;
-    for (i = 0; i < sizeof(VPW_RxBuf); i++) {
-        if (VPW_RxBuf[idx] > EOF_IDX) {
-            return 0;
-        }
-        if (VPW_RxBuf[idx] == EOF_IDX) {
-            break;
-        }
-        byteBuf[i] = 0;
-        for (j = 7; j >= 0; j--) {
-            cSymIdx = VPW_RxBuf[idx];
-            if (cSymIdx == pSymIdx) {
-                cBit ^= 1;
-            }
-            byteBuf[i] |= (cBit << j);
-            pSymIdx = cSymIdx;
-            idx++;
-        }
-        len++;
-    }
-    return len;
-}
-
 Vpw::Vpw() {
     auto f = [this](auto &&PH1) { return OnTimerEvent(std::forward<decltype(PH1)>(PH1)); };
     KeCommon::Bsw::Timers::FTM::getInstance().RegisterTimerCallback(FTM3, f);
     //make sure channels are effectively disabled by setting compare value above counter max
     FTM3->COMBINE = 0;
-//    FTM3->OUTMASK |= FTM_OUTMASK_CH2OM(1);
-//    FTM3->OUTINIT |= FTM_OUTINIT_CH1OI(1);
-    FTM3->CONTROLS[0].CnV = UINT16_MAX;
-    FTM3->CONTROLS[2].CnV = UINT16_MAX;
+    *OutputChnCompareValue = CompareDisabled;
+    *EofChnCompareValue = CompareDisabled;
+    ResetRx();
+    FinalizeTx();
     FTM_StartTimer(FTM3, kFTM_FixedClock);
 }
 
-void Vpw::SetTimerAlarm(volatile uint32_t *counterRegister, uint32_t value) {
+inline void Vpw::SetTimerAlarm(volatile uint32_t *counterRegister, uint32_t value) const {
     if (value > CounterMax) {
         value -= CounterMax;
     }
     *counterRegister = value;
 }
 
-inline uint16_t Vpw::GetPulseWidth(uint16_t a, uint16_t b) {
+inline uint16_t Vpw::GetPulseWidth(uint16_t a, uint16_t b) const {
     if (b < a) {
         return b + CounterMax - a;
     }
@@ -118,38 +87,16 @@ inline uint16_t Vpw::GetPulseWidth(uint16_t a, uint16_t b) {
 }
 
 inline void Vpw::ResetRx() {
-    RxInProgress = (VPW_RxStatus_t) Idle;
-    FTM3->CONTROLS[3].CnSC &= ~(FTM_CnSC_ELSB_MASK);
-    VPW_RxBufPtr = 0;
-    *EofChnCompareValue = -1;
+    _rxStatus = Status::Idle;
+//    FTM3->CONTROLS[3].CnSC &= ~(FTM_CnSC_ELSB_MASK);
+    _rxBufferCurIdx = 0;
+    *EofChnCompareValue = CompareDisabled;
 }
 
 void Vpw::FinalizeTx() {
-    *OutputChnCompareValue = -1;
+    *OutputChnCompareValue = CompareDisabled;
     FTM3->MODE = FTM_MODE_INIT_MASK;
     TxInProgress = 0;
-}
-
-uint8_t Vpw::J1850_Recieve(uint8_t *byteBuf, uint16_t *len) {
-    uint8_t ret = 1;
-    uint8_t rawLen, crc;
-    if (RxInProgress == (VPW_RxStatus_t) Done) {
-        rawLen = J1850VPW_BitsToByte(byteBuf);
-
-        crc = CalcCRC(byteBuf, rawLen - 1);
-
-        if (byteBuf[rawLen - 1] == crc)
-            ret = 0;
-        else
-            ret = 2;
-        *len = rawLen - 1;
-        ResetRx();
-    }
-    if (RxInProgress == (VPW_RxStatus_t) Error) {
-        ResetRx();
-        ret = 3;
-    }
-    return ret;
 }
 
 uint8_t Vpw::J1850_Transmit(uint8_t *byteBuf, uint16_t len) {
@@ -168,32 +115,14 @@ uint8_t Vpw::J1850_Transmit(uint8_t *byteBuf, uint16_t len) {
 
 uint32_t Vpw::OnTimerEvent(uint32_t status) {
     GPIO_PinWrite(BOARD_INITPINS_D2_GPIO, BOARD_INITPINS_D2_PIN, 0);
-    uint32_t nextVal;
     uint32_t eventsToClear = 0;
-    static uint32_t currentBit{0};
     uint32_t curVal = FTM3->CNT;
 
     if (status & kFTM_Chnl3Flag) {
         eventsToClear |= kFTM_Chnl3Flag;
 
-//        uint32_t width;
-//        uint8_t symIdx;
-//        width = GetPulseWidth(PrevCntrVal, curVal);
-//        if (width > RX_SOF_MIN && width <= RX_SOF_MAX) {
-//            symIdx = SOF_IDX;
-//            VPW_RxBufPtr = 0;
-//        } else if (width > RX_LONG_MIN && width <= RX_LONG_MAX) {
-//            symIdx = LONG_IDX;
-//        } else if (width > RX_SHORT_MIN && width <= RX_SHORT_MAX) {
-//            symIdx = SHORT_IDX;
-//        } else {
-//            ResetRx();
-//            return eventsToClear;
-//        }
-
-
         if (TxInProgress) {
-            nextVal = VPW_Symbols[VPW_TxBuf[VPW_TxBufPtr]];
+            auto nextVal = VPW_Symbols[VPW_TxBuf[VPW_TxBufPtr]];
             if (VPW_TxBuf[VPW_TxBufPtr] == EOF_IDX) {
                 FinalizeTx();
             } else {
@@ -201,47 +130,46 @@ uint32_t Vpw::OnTimerEvent(uint32_t status) {
             }
             VPW_TxBufPtr++;
         }
-//        if (RxInProgress == (VPW_RxStatus_t) Idle) {
-//            RxInProgress = (VPW_RxStatus_t) SOF;
-//            VPW_RxBufPtr = 0;
-//            FTM3->CONTROLS[3].CnSC |= (FTM_CnSC_ELSB_MASK);
-//        } else
-//            if (RxInProgress == 1)
-//        {
-//            uint32_t width;
-//            uint8_t symIdx;
-//            width = GetPulseWidth(PrevCntrVal, curVal);
-//            if (width > RX_SOF_MIN && width <= RX_SOF_MAX) {
-//                symIdx = SOF_IDX;
-//            } else if (width > RX_LONG_MIN && width <= RX_LONG_MAX) {
-//                symIdx = LONG_IDX;
-//            } else if (width > RX_SHORT_MIN && width <= RX_SHORT_MAX) {
-//                symIdx = SHORT_IDX;
-//            } else {
-//                ResetRx();
-//                return eventsToClear;
-//            }
-//            VPW_RxBuf[VPW_RxBufPtr] = symIdx;
-//            if (TxInProgress == 1) {
-//                if (VPW_RxBuf[VPW_RxBufPtr] != VPW_TxBuf[VPW_RxBufPtr]) {
-//                    FinalizeTx();
-//                }
-//            }
-//            if (VPW_RxBufPtr < sizeof(VPW_RxBuf) - 2) {
-//                VPW_RxBufPtr++;
-//            }
-//        }
-        SetTimerAlarm(EofChnCompareValue, curVal + RX_EOF_MIN);
+
+        if (_rxStatus == Status::Idle) {
+            FTM3->CONTROLS[3].CnSC |= (FTM_CnSC_ELSB_MASK);
+            _rxStatus = Status::Active;
+        } else {
+            uint32_t width;
+            int32_t sym = -1;
+            uint8_t bit = 0;
+            width = GetPulseWidth(PrevCntrVal, curVal);
+            if (width > RX_SOF_MIN && width <= RX_SOF_MAX) {
+                _rxBufferCurIdx = 0;
+                _rxBuffTmpByte = 0;
+                _rxBitInBytePos = 7;
+                _lastBit = 1;
+                _lastSym = 1;
+            } else if (width > RX_LONG_MIN && width <= RX_LONG_MAX) {
+                sym = LONG_IDX;
+            } else if (width > RX_SHORT_MIN && width <= RX_SHORT_MAX) {
+                sym = SHORT_IDX;
+            }
+            if (sym != -1) {
+                bit = (sym == _lastSym) ? _lastBit ^ 1 : _lastBit;
+                _lastBit = bit;
+                _lastSym = sym;
+                if (_rxBitInBytePos < 0) {
+                    _rxMessageBuffer[_rxBufferCurIdx] = _rxBuffTmpByte;
+                    _rxBufferCurIdx++;
+                    _rxBuffTmpByte = 0;
+                    _rxBitInBytePos = 7;
+                }
+                _rxBuffTmpByte |= bit << _rxBitInBytePos;
+                _rxBitInBytePos--;
+            }
+            SetTimerAlarm(EofChnCompareValue, curVal + RX_EOF_MAX);
+        }
         PrevCntrVal = curVal;
     }
     if (status & kFTM_Chnl0Flag) {
-        VPW_RxBuf[VPW_RxBufPtr] = EOF_IDX;
-        *EofChnCompareValue = -1;
-        FinalizeTx();
-        if (RxInProgress == 1) {
-            RxInProgress = (VPW_RxStatus_t) Done;
-        }
         eventsToClear |= kFTM_Chnl0Flag;
+        ResetRx();
     }
     GPIO_PinWrite(BOARD_INITPINS_D2_GPIO, BOARD_INITPINS_D2_PIN, 1);
 
@@ -260,7 +188,7 @@ uint8_t Vpw::CalcCrc(const std::vector<uint8_t> &data) {
     return crc;
 }
 
-uint8_t Vpw::CalcCRC(uint8_t *data, uint8_t size) {
+uint8_t Vpw::CalcCRC(const uint8_t *data, uint8_t size) {
     uint8_t crc = 0xff;
     uint16_t idx;
     for (idx = 0; idx < size; idx++) {
@@ -274,7 +202,7 @@ uint8_t Vpw::CalcCRC(uint8_t *data, uint8_t size) {
 }
 
 std::vector<uint8_t> Vpw::GetData() {
-//    return std::vector<uint8_t>();
+    return {};
 }
 
 void Vpw::SendData(const std::vector<uint8_t> &data) {

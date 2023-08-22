@@ -42,6 +42,8 @@ namespace App::CDD {
 #define RX_SOF_MIN   US2TICKS(163)
 #define RX_SOF_MAX   US2TICKS(239)
 #define RX_EOF_MIN   US2TICKS(239)
+#define RX_EOF_MAX   US2TICKS(280)
+
 #define SOF_US       200
 #define LONG_US      128
 #define SHORT_US     64
@@ -53,14 +55,6 @@ namespace App::CDD {
 #define EOF_IDX   3
 
 
-    typedef enum {
-        Idle,
-        SOF,
-        Acvtive,
-        Done,
-        Error
-    } VPW_RxStatus_t;
-
     class Vpw {
     public:
         Vpw();
@@ -70,12 +64,43 @@ namespace App::CDD {
         void SendData(const std::vector<uint8_t> &data);
 
     private:
-        static constexpr int MaxDataSize = 12;
+        static constexpr int MaxDataSize = 15;
+        static constexpr uint16_t CompareDisabled = UINT16_MAX;
+        static constexpr uint32_t CounterMax = CompareDisabled - 1;
         static const std::array<uint8_t, 256> _crcTable;
-        std::vector<uint8_t> _txBuffer = std::vector<uint8_t>(MaxDataSize + 4);
-        std::vector<uint8_t> _rxBuffer = std::vector<uint8_t>(MaxDataSize + 4);
-        uint8_t VPW_RxBuf[(RX_BUFLEN + 1) * 8];
-        uint8_t VPW_TxBuf[(TX_BUFLEN + 1) * 8];
+
+        enum class Status {
+            Idle,
+            Active
+        };
+        struct message {
+            uint8_t length;
+            std::array<uint8_t, MaxDataSize> data;
+        };
+        struct MessageQueue {
+            uint16_t CurrentIdx;
+            uint16_t LastIdx;
+            std::array<message, 7> Queue;
+        };
+        MessageQueue _rxFifo{.CurrentIdx = 0, .LastIdx=0};
+        MessageQueue _txFifo{.CurrentIdx = 0, .LastIdx=0};
+
+        std::array<uint8_t, MaxDataSize> _rxMessageBuffer{};
+
+        uint8_t _rxBufferCurIdx{};
+        uint8_t _rxBitInBytePos{};
+        uint8_t _lastSym{};
+        uint8_t _lastBit{};
+        uint8_t _rxBuffTmpByte{};
+
+        int VPW_TxBufPtr{0};
+        int TxInProgress{0};
+
+
+        Status _txStatus{Status::Idle}
+        , _rxStatus{Status::Idle};
+
+        uint8_t VPW_TxBuf[(TX_BUFLEN + 1) * 8]{};
 
         void J1850VPW_ByteToBits(uint8_t *byteBuf, uint16_t len);
 
@@ -83,33 +108,25 @@ namespace App::CDD {
 
         uint8_t CalcCrc(const std::vector<uint8_t> &data);
 
-        uint8_t CalcCRC(uint8_t *data, uint8_t size);
+        static uint8_t CalcCRC(const uint8_t *data, uint8_t size);
 
         bool _txInProgress{false};
         volatile uint32_t *OutputChnCompareValue{&FTM3->CONTROLS[2].CnV};
         volatile uint32_t *EofChnCompareValue{&FTM3->CONTROLS[0].CnV};
 
-        void SetTimerAlarm(volatile uint32_t *counterRegister, uint32_t value);
+        void SetTimerAlarm(volatile uint32_t *counterRegister, uint32_t value) const;
 
-        uint16_t GetPulseWidth(uint16_t a, uint16_t b);
+        [[nodiscard]] uint16_t GetPulseWidth(uint16_t a, uint16_t b) const;
 
-        void ResetRx(void);
+        void ResetRx();
 
-        void FinalizeTx(void);
+        void FinalizeTx();
 
-        int RxInProgress{0};
-        int VPW_RxBufPtr{0};
-        int VPW_TxBufPtr{0};
-        int TxInProgress{0};
 
         uint8_t J1850_Transmit(uint8_t *byteBuf, uint16_t len);
 
-        uint8_t J1850_Recieve(uint8_t *byteBuf, uint16_t *len);
-
-        uint16_t J1850VPW_BitsToByte(uint8_t *byteBuf);
-
         uint32_t PrevCntrVal{0};
-        const uint32_t CounterMax = 0xfffe;
+
     };
 }// namespace App::J1850Vpw
 

@@ -56,7 +56,7 @@ namespace App {
         UpdateFrame536();
         static int i = 0;
         if (i > 20) {
-            _vpw.SendData({0x8D, 0x93, 0x01, 0x01, 0x80});
+//            _vpw.SendData({0x8D, 0x93, 0x01, 0x01, 0x80});
             i = 0;
         } else {
             i++;
