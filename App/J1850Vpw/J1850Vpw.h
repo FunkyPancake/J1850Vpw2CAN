@@ -30,7 +30,6 @@
  */
 
 namespace App::CDD {
-#define RX_BUFLEN   12
 #define TX_BUFLEN   12
 #define US2TICKS(x) ((uint16_t)(x*3))
 
@@ -47,7 +46,7 @@ namespace App::CDD {
 #define SOF_US       200
 #define LONG_US      128
 #define SHORT_US     64
-#define EOF_US       200
+#define EOF_US       280
 
 #define LONG_IDX  0
 #define SHORT_IDX 1
@@ -71,30 +70,37 @@ namespace App::CDD {
 
         enum class Status {
             Idle,
+            Sof,
             Active
         };
-        struct message {
-            uint8_t length;
-            std::array<uint8_t, MaxDataSize> data;
+
+        struct Message
+        {
+            uint8_t Len;
+            std::array<uint8_t, MaxDataSize> Data;
         };
+
         struct MessageQueue {
             uint16_t CurrentIdx;
             uint16_t LastIdx;
-            std::array<message, 7> Queue;
+            std::array<Message, 7> Queue;
         };
+
         MessageQueue _rxFifo{.CurrentIdx = 0, .LastIdx=0};
         MessageQueue _txFifo{.CurrentIdx = 0, .LastIdx=0};
 
-        std::array<uint8_t, MaxDataSize> _rxMessageBuffer{};
+        Message _txMessageBuffer{};
+        int8_t _txBitInBytePos{};
+        uint8_t _txBuffByte{};
+        uint8_t _txLastSym{};
+        uint8_t _txLastBit{};
 
-        uint8_t _rxBufferCurIdx{};
-        uint8_t _rxBitInBytePos{};
-        uint8_t _lastSym{};
-        uint8_t _lastBit{};
-        uint8_t _rxBuffTmpByte{};
 
-        int VPW_TxBufPtr{0};
-        int TxInProgress{0};
+        Message _rxMessageBuffer{};
+        int8_t _rxBitInBytePos{};
+        uint8_t _rxBuffByte{};
+        uint8_t _rxLastSym{};
+        uint8_t _rxLastBit{};
 
 
         Status _txStatus{Status::Idle}
@@ -102,28 +108,22 @@ namespace App::CDD {
 
         uint8_t VPW_TxBuf[(TX_BUFLEN + 1) * 8]{};
 
-        void J1850VPW_ByteToBits(uint8_t *byteBuf, uint16_t len);
 
         uint32_t OnTimerEvent(uint32_t status);
 
-        uint8_t CalcCrc(const std::vector<uint8_t> &data);
+        static uint8_t CalcCrc(const std::vector<uint8_t> &data);
 
-        static uint8_t CalcCRC(const uint8_t *data, uint8_t size);
-
-        bool _txInProgress{false};
         volatile uint32_t *OutputChnCompareValue{&FTM3->CONTROLS[2].CnV};
         volatile uint32_t *EofChnCompareValue{&FTM3->CONTROLS[0].CnV};
 
-        void SetTimerAlarm(volatile uint32_t *counterRegister, uint32_t value) const;
+        static void SetTimerAlarm(volatile uint32_t *counterRegister, uint32_t value);
 
-        [[nodiscard]] uint16_t GetPulseWidth(uint16_t a, uint16_t b) const;
+        [[nodiscard]] static uint16_t GetPulseWidth(uint16_t a, uint16_t b);
 
         void ResetRx();
 
         void FinalizeTx();
 
-
-        uint8_t J1850_Transmit(uint8_t *byteBuf, uint16_t len);
 
         uint32_t PrevCntrVal{0};
 

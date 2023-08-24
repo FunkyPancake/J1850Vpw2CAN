@@ -1,4 +1,5 @@
 #include <functional>
+#include <cstring>
 #include "J1850Vpw.h"
 #include "fsl_ftm.h"
 #include "FTM.h"
@@ -8,63 +9,39 @@
 
 using namespace App::CDD;
 
-constexpr std::array<uint8_t, 256> Vpw::_crcTable = {
-        0x00, 0x1D, 0x3A, 0x27, 0x74, 0x69, 0x4E, 0x53, 0xE8, 0xF5, 0xD2, 0xCF, 0x9C, 0x81, 0xA6, 0xBB,
-        0xCD, 0xD0, 0xF7, 0xEA, 0xB9, 0xA4, 0x83, 0x9E, 0x25, 0x38, 0x1F, 0x02, 0x51, 0x4C, 0x6B, 0x76,
-        0x87, 0x9A, 0xBD, 0xA0, 0xF3, 0xEE, 0xC9, 0xD4, 0x6F, 0x72, 0x55, 0x48, 0x1B, 0x06, 0x21, 0x3C,
-        0x4A, 0x57, 0x70, 0x6D, 0x3E, 0x23, 0x04, 0x19, 0xA2, 0xBF, 0x98, 0x85, 0xD6, 0xCB, 0xEC, 0xF1,
-        0x13, 0x0E, 0x29, 0x34, 0x67, 0x7A, 0x5D, 0x40, 0xFB, 0xE6, 0xC1, 0xDC, 0x8F, 0x92, 0xB5, 0xA8,
-        0xDE, 0xC3, 0xE4, 0xF9, 0xAA, 0xB7, 0x90, 0x8D, 0x36, 0x2B, 0x0C, 0x11, 0x42, 0x5F, 0x78, 0x65,
-        0x94, 0x89, 0xAE, 0xB3, 0xE0, 0xFD, 0xDA, 0xC7, 0x7C, 0x61, 0x46, 0x5B, 0x08, 0x15, 0x32, 0x2F,
-        0x59, 0x44, 0x63, 0x7E, 0x2D, 0x30, 0x17, 0x0A, 0xB1, 0xAC, 0x8B, 0x96, 0xC5, 0xD8, 0xFF, 0xE2,
-        0x26, 0x3B, 0x1C, 0x01, 0x52, 0x4F, 0x68, 0x75, 0xCE, 0xD3, 0xF4, 0xE9, 0xBA, 0xA7, 0x80, 0x9D,
-        0xEB, 0xF6, 0xD1, 0xCC, 0x9F, 0x82, 0xA5, 0xB8, 0x03, 0x1E, 0x39, 0x24, 0x77, 0x6A, 0x4D, 0x50,
-        0xA1, 0xBC, 0x9B, 0x86, 0xD5, 0xC8, 0xEF, 0xF2, 0x49, 0x54, 0x73, 0x6E, 0x3D, 0x20, 0x07, 0x1A,
-        0x6C, 0x71, 0x56, 0x4B, 0x18, 0x05, 0x22, 0x3F, 0x84, 0x99, 0xBE, 0xA3, 0xF0, 0xED, 0xCA, 0xD7,
-        0x35, 0x28, 0x0F, 0x12, 0x41, 0x5C, 0x7B, 0x66, 0xDD, 0xC0, 0xE7, 0xFA, 0xA9, 0xB4, 0x93, 0x8E,
-        0xF8, 0xE5, 0xC2, 0xDF, 0x8C, 0x91, 0xB6, 0xAB, 0x10, 0x0D, 0x2A, 0x37, 0x64, 0x79, 0x5E, 0x43,
-        0xB2, 0xAF, 0x88, 0x95, 0xC6, 0xDB, 0xFC, 0xE1, 0x5A, 0x47, 0x60, 0x7D, 0x2E, 0x33, 0x14, 0x09,
-        0x7F, 0x62, 0x45, 0x58, 0x0B, 0x16, 0x31, 0x2C, 0x97, 0x8A, 0xAD, 0xB0, 0xE3, 0xFE, 0xD9, 0xC4};
+constexpr std::array<uint8_t, 256> Vpw::_crcTable = {0x00, 0x1D, 0x3A, 0x27, 0x74, 0x69, 0x4E, 0x53, 0xE8, 0xF5, 0xD2,
+                                                     0xCF, 0x9C, 0x81, 0xA6, 0xBB, 0xCD, 0xD0, 0xF7, 0xEA, 0xB9, 0xA4,
+                                                     0x83, 0x9E, 0x25, 0x38, 0x1F, 0x02, 0x51, 0x4C, 0x6B, 0x76, 0x87,
+                                                     0x9A, 0xBD, 0xA0, 0xF3, 0xEE, 0xC9, 0xD4, 0x6F, 0x72, 0x55, 0x48,
+                                                     0x1B, 0x06, 0x21, 0x3C, 0x4A, 0x57, 0x70, 0x6D, 0x3E, 0x23, 0x04,
+                                                     0x19, 0xA2, 0xBF, 0x98, 0x85, 0xD6, 0xCB, 0xEC, 0xF1, 0x13, 0x0E,
+                                                     0x29, 0x34, 0x67, 0x7A, 0x5D, 0x40, 0xFB, 0xE6, 0xC1, 0xDC, 0x8F,
+                                                     0x92, 0xB5, 0xA8, 0xDE, 0xC3, 0xE4, 0xF9, 0xAA, 0xB7, 0x90, 0x8D,
+                                                     0x36, 0x2B, 0x0C, 0x11, 0x42, 0x5F, 0x78, 0x65, 0x94, 0x89, 0xAE,
+                                                     0xB3, 0xE0, 0xFD, 0xDA, 0xC7, 0x7C, 0x61, 0x46, 0x5B, 0x08, 0x15,
+                                                     0x32, 0x2F, 0x59, 0x44, 0x63, 0x7E, 0x2D, 0x30, 0x17, 0x0A, 0xB1,
+                                                     0xAC, 0x8B, 0x96, 0xC5, 0xD8, 0xFF, 0xE2, 0x26, 0x3B, 0x1C, 0x01,
+                                                     0x52, 0x4F, 0x68, 0x75, 0xCE, 0xD3, 0xF4, 0xE9, 0xBA, 0xA7, 0x80,
+                                                     0x9D, 0xEB, 0xF6, 0xD1, 0xCC, 0x9F, 0x82, 0xA5, 0xB8, 0x03, 0x1E,
+                                                     0x39, 0x24, 0x77, 0x6A, 0x4D, 0x50, 0xA1, 0xBC, 0x9B, 0x86, 0xD5,
+                                                     0xC8, 0xEF, 0xF2, 0x49, 0x54, 0x73, 0x6E, 0x3D, 0x20, 0x07, 0x1A,
+                                                     0x6C, 0x71, 0x56, 0x4B, 0x18, 0x05, 0x22, 0x3F, 0x84, 0x99, 0xBE,
+                                                     0xA3, 0xF0, 0xED, 0xCA, 0xD7, 0x35, 0x28, 0x0F, 0x12, 0x41, 0x5C,
+                                                     0x7B, 0x66, 0xDD, 0xC0, 0xE7, 0xFA, 0xA9, 0xB4, 0x93, 0x8E, 0xF8,
+                                                     0xE5, 0xC2, 0xDF, 0x8C, 0x91, 0xB6, 0xAB, 0x10, 0x0D, 0x2A, 0x37,
+                                                     0x64, 0x79, 0x5E, 0x43, 0xB2, 0xAF, 0x88, 0x95, 0xC6, 0xDB, 0xFC,
+                                                     0xE1, 0x5A, 0x47, 0x60, 0x7D, 0x2E, 0x33, 0x14, 0x09, 0x7F, 0x62,
+                                                     0x45, 0x58, 0x0B, 0x16, 0x31, 0x2C, 0x97, 0x8A, 0xAD, 0xB0, 0xE3,
+                                                     0xFE, 0xD9, 0xC4};
 
-static const uint32_t VPW_Symbols[] = {US2TICKS(LONG_US), US2TICKS(SHORT_US), US2TICKS(SOF_US),
-                                       US2TICKS(EOF_US)};
 
-void Vpw::J1850VPW_ByteToBits(uint8_t *byteBuf, uint16_t len) {
-    int i, j, idx, pSymIdx;
-    uint8_t cBit, pBit, crc;
-    VPW_TxBuf[0] = SOF_IDX;
-    idx = 1;
-    pBit = 1;
-    pSymIdx = 1;
-    for (i = 0; i < len; i++) {
-        for (j = 7; j >= 0; j--) {
-            cBit = (byteBuf[i] & (1 << j)) != 0;
-            if (cBit == pBit) {
-                pSymIdx ^= 1;
-            }
-            VPW_TxBuf[idx] = pSymIdx;
-            pBit = cBit;
-            idx++;
-        }
-    }
-    crc = CalcCRC(byteBuf, len);
-    for (j = 7; j >= 0; j--) {
-        cBit = (crc & (1 << j)) != 0;
-        if (cBit == pBit) {
-            pSymIdx ^= 1;
-        }
-        VPW_TxBuf[idx] = pSymIdx;
-        pBit = cBit;
-        idx++;
-    }
-    VPW_TxBuf[idx] = EOF_IDX;
-}
-
-Vpw::Vpw() {
+Vpw::Vpw()
+{
     auto f = [this](auto &&PH1) { return OnTimerEvent(std::forward<decltype(PH1)>(PH1)); };
     KeCommon::Bsw::Timers::FTM::getInstance().RegisterTimerCallback(FTM3, f);
     //make sure channels are effectively disabled by setting compare value above counter max
     FTM3->COMBINE = 0;
+//    FTM3->FILTER |= FTM_FILTER_CH3FVAL(3);
     *OutputChnCompareValue = CompareDisabled;
     *EofChnCompareValue = CompareDisabled;
     ResetRx();
@@ -72,103 +49,144 @@ Vpw::Vpw() {
     FTM_StartTimer(FTM3, kFTM_FixedClock);
 }
 
-inline void Vpw::SetTimerAlarm(volatile uint32_t *counterRegister, uint32_t value) const {
-    if (value > CounterMax) {
+inline void Vpw::SetTimerAlarm(volatile uint32_t *counterRegister, uint32_t value)
+{
+    if (value > CounterMax)
+    {
         value -= CounterMax;
     }
     *counterRegister = value;
 }
 
-inline uint16_t Vpw::GetPulseWidth(uint16_t a, uint16_t b) const {
-    if (b < a) {
+inline uint16_t Vpw::GetPulseWidth(uint16_t a, uint16_t b)
+{
+    if (b < a)
+    {
         return b + CounterMax - a;
     }
     return b - a;
 }
 
-inline void Vpw::ResetRx() {
+inline void Vpw::ResetRx()
+{
     _rxStatus = Status::Idle;
 //    FTM3->CONTROLS[3].CnSC &= ~(FTM_CnSC_ELSB_MASK);
-    _rxBufferCurIdx = 0;
+    _rxMessageBuffer.Len = 0;
     *EofChnCompareValue = CompareDisabled;
 }
 
-void Vpw::FinalizeTx() {
+void Vpw::FinalizeTx()
+{
     *OutputChnCompareValue = CompareDisabled;
     FTM3->MODE = FTM_MODE_INIT_MASK;
-    TxInProgress = 0;
+    _txStatus = Status::Idle;
 }
 
-uint8_t Vpw::J1850_Transmit(uint8_t *byteBuf, uint16_t len) {
-    uint16_t curVal;
-    if (TxInProgress == 0) {
-        J1850VPW_ByteToBits(byteBuf, len);
-        VPW_TxBufPtr = 0;
-        FTM3->MODE = FTM_MODE_INIT_MASK;
-        curVal = FTM3->CNT;
-        SetTimerAlarm(OutputChnCompareValue, curVal + 10);
-        TxInProgress = 1;
-        return 0;
-    }
-    return 1;
-}
 
-uint32_t Vpw::OnTimerEvent(uint32_t status) {
+uint32_t Vpw::OnTimerEvent(uint32_t status)
+{
     GPIO_PinWrite(BOARD_INITPINS_D2_GPIO, BOARD_INITPINS_D2_PIN, 0);
     uint32_t eventsToClear = 0;
     uint32_t curVal = FTM3->CNT;
 
-    if (status & kFTM_Chnl3Flag) {
+    if (status & kFTM_Chnl3Flag)
+    {
         eventsToClear |= kFTM_Chnl3Flag;
 
-        if (TxInProgress) {
-            auto nextVal = VPW_Symbols[VPW_TxBuf[VPW_TxBufPtr]];
-            if (VPW_TxBuf[VPW_TxBufPtr] == EOF_IDX) {
-                FinalizeTx();
-            } else {
-                SetTimerAlarm(OutputChnCompareValue, curVal + nextVal);
-            }
-            VPW_TxBufPtr++;
-        }
 
-        if (_rxStatus == Status::Idle) {
-            FTM3->CONTROLS[3].CnSC |= (FTM_CnSC_ELSB_MASK);
+        if (_rxStatus == Status::Idle && (FTM3->CONTROLS[3].CnSC & FTM_CnSC_CHIS_MASK) == FTM_CnSC_CHIS_MASK)
+        {
             _rxStatus = Status::Active;
-        } else {
+        } else
+        {
             uint32_t width;
             int32_t sym = -1;
             uint8_t bit = 0;
             width = GetPulseWidth(PrevCntrVal, curVal);
-            if (width > RX_SOF_MIN && width <= RX_SOF_MAX) {
-                _rxBufferCurIdx = 0;
-                _rxBuffTmpByte = 0;
+            if (width > RX_SOF_MIN && width <= RX_SOF_MAX)
+            {
+                _rxMessageBuffer.Len = 0;
+                _rxBuffByte = 0;
                 _rxBitInBytePos = 7;
-                _lastBit = 1;
-                _lastSym = 1;
-            } else if (width > RX_LONG_MIN && width <= RX_LONG_MAX) {
+                _rxLastBit = 1;
+                _rxLastSym = 1;
+            } else if (width > RX_LONG_MIN && width <= RX_LONG_MAX)
+            {
                 sym = LONG_IDX;
-            } else if (width > RX_SHORT_MIN && width <= RX_SHORT_MAX) {
+            } else if (width > RX_SHORT_MIN && width <= RX_SHORT_MAX)
+            {
                 sym = SHORT_IDX;
             }
-            if (sym != -1) {
-                bit = (sym == _lastSym) ? _lastBit ^ 1 : _lastBit;
-                _lastBit = bit;
-                _lastSym = sym;
-                if (_rxBitInBytePos < 0) {
-                    _rxMessageBuffer[_rxBufferCurIdx] = _rxBuffTmpByte;
-                    _rxBufferCurIdx++;
-                    _rxBuffTmpByte = 0;
+            if (sym != -1)
+            {
+                bit = (sym == _rxLastSym) ? _rxLastBit ^ 1 : _rxLastBit;
+                _rxLastBit = bit;
+                _rxLastSym = sym;
+                if (_rxBitInBytePos < 0)
+                {
+                    _rxMessageBuffer.Data[_rxMessageBuffer.Len] = _rxBuffByte;
+                    _rxMessageBuffer.Len++;
+                    _rxBuffByte = 0;
                     _rxBitInBytePos = 7;
                 }
-                _rxBuffTmpByte |= bit << _rxBitInBytePos;
+                _rxBuffByte |= bit << _rxBitInBytePos;
                 _rxBitInBytePos--;
             }
-            SetTimerAlarm(EofChnCompareValue, curVal + RX_EOF_MAX);
+
+//            if (_txStatus == Status::Active) {
+//                uint8_t txBit = (_txMessageBuffer.Data[_rxBuffByte] >> _txBitInBytePos) & 1;
+//                uint8_t txSym = txBit == _txLastBit ? _txLastSym : !_txLastSym;
+//                _txLastBit = txBit;
+//                _txLastSym = txSym;
+//                auto pulseLen = txSym ? US2TICKS(SHORT_US) : US2TICKS(LONG_US);
+//                SetTimerAlarm(OutputChnCompareValue, curVal + pulseLen);
+//
+        }
+        SetTimerAlarm(EofChnCompareValue, curVal + RX_EOF_MAX);
+//        }
+        if (_txStatus == Status::Sof)
+        {
+            _txBitInBytePos = 7;
+            _txLastSym = 1;
+            _txLastBit = 1;
+            _txBuffByte = 0;
+            _txStatus = Status::Active;
+            SetTimerAlarm(OutputChnCompareValue, curVal + US2TICKS(SOF_US));
+        } else
+        {
+            if (_txStatus == Status::Active)
+            {
+                uint8_t txBit = (_txMessageBuffer.Data[_txBuffByte] >> _txBitInBytePos) & 1;
+                uint8_t txSym = txBit == _txLastBit ? _txLastSym : !_txLastSym;
+                _txLastBit = txBit;
+                _txLastSym = txSym;
+                auto pulseLen = txSym ? US2TICKS(SHORT_US) : US2TICKS(LONG_US);
+                _txBitInBytePos--;
+                if (_txBitInBytePos < 0)
+                {
+                    _txBuffByte++;
+                    _txBitInBytePos = 7;
+                }
+                if (_txBitInBytePos == 0 && _txBuffByte == _txMessageBuffer.Len)
+                {
+                    _txStatus = Status::Idle;
+                    *OutputChnCompareValue = CompareDisabled;
+                } else
+                {
+                    SetTimerAlarm(OutputChnCompareValue, curVal + pulseLen);
+                }
+
+            }
         }
         PrevCntrVal = curVal;
     }
-    if (status & kFTM_Chnl0Flag) {
+    if (status & kFTM_Chnl0Flag)
+    {
         eventsToClear |= kFTM_Chnl0Flag;
+        _rxFifo.LastIdx = (_rxFifo.LastIdx + 1) & 7;
+        _rxFifo.Queue[_rxFifo.LastIdx] = _rxMessageBuffer;
+        *OutputChnCompareValue = CompareDisabled;
+        _txStatus = Status::Idle;
         ResetRx();
     }
     GPIO_PinWrite(BOARD_INITPINS_D2_GPIO, BOARD_INITPINS_D2_PIN, 1);
@@ -176,9 +194,11 @@ uint32_t Vpw::OnTimerEvent(uint32_t status) {
     return eventsToClear;
 }
 
-uint8_t Vpw::CalcCrc(const std::vector<uint8_t> &data) {
+uint8_t Vpw::CalcCrc(const std::vector<uint8_t> &data)
+{
     uint8_t crc = 0xff;
-    for (auto b: data) {
+    for (auto b: data)
+    {
         /* XOR-in next input byte */
         uint8_t byte = (b ^ crc);
         /* get current CRC value = remainder */
@@ -188,25 +208,29 @@ uint8_t Vpw::CalcCrc(const std::vector<uint8_t> &data) {
     return crc;
 }
 
-uint8_t Vpw::CalcCRC(const uint8_t *data, uint8_t size) {
-    uint8_t crc = 0xff;
-    uint16_t idx;
-    for (idx = 0; idx < size; idx++) {
-        /* XOR-in next input byte */
-        uint8_t byte = (data[idx] ^ crc);
-        /* get current CRC value = remainder */
-        crc = (_crcTable[byte]);
-    }
-    crc ^= 0xff;
-    return crc;
-}
-
-std::vector<uint8_t> Vpw::GetData() {
+std::vector<uint8_t> Vpw::GetData()
+{
     return {};
 }
 
-void Vpw::SendData(const std::vector<uint8_t> &data) {
-    J1850_Transmit(const_cast<uint8_t *>(data.data()), data.size());
-//    auto buf = std::vector<uint8_t>(data.size())
-//    auto crc = CalcCrc(data)
+void Vpw::SendData(const std::vector<uint8_t> &data)
+{
+
+    auto crc = CalcCrc(data);
+    Message msg = {.Len = static_cast<uint8_t>(data.size())};
+    std::memcpy(msg.Data.data(), data.data(), data.size());
+    msg.Data[data.size()] = crc;
+
+    if (_rxStatus == Status::Idle && _txStatus == Status::Idle)
+    {
+        _txMessageBuffer = msg;
+        FTM3->MODE = FTM_MODE_INIT_MASK;
+        _txStatus = Status::Sof;
+        auto curVal = FTM3->CNT;
+        SetTimerAlarm(OutputChnCompareValue, curVal + 10);
+    } else
+    {
+        _txFifo.LastIdx = (_txFifo.LastIdx + 1) & 0x7;
+        _txFifo.Queue[_txFifo.LastIdx] = msg;
+    }
 }
