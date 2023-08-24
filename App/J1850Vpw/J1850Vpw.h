@@ -71,7 +71,9 @@ namespace App::CDD {
         enum class Status {
             Idle,
             Sof,
-            Active
+            Active,
+            Eof,
+            Failed
         };
 
         struct Message

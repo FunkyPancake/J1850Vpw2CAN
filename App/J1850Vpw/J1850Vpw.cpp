@@ -132,51 +132,55 @@ uint32_t Vpw::OnTimerEvent(uint32_t status)
                 _rxBuffByte |= bit << _rxBitInBytePos;
                 _rxBitInBytePos--;
             }
-
-//            if (_txStatus == Status::Active) {
-//                uint8_t txBit = (_txMessageBuffer.Data[_rxBuffByte] >> _txBitInBytePos) & 1;
-//                uint8_t txSym = txBit == _txLastBit ? _txLastSym : !_txLastSym;
-//                _txLastBit = txBit;
-//                _txLastSym = txSym;
-//                auto pulseLen = txSym ? US2TICKS(SHORT_US) : US2TICKS(LONG_US);
-//                SetTimerAlarm(OutputChnCompareValue, curVal + pulseLen);
-//
         }
-        SetTimerAlarm(EofChnCompareValue, curVal + RX_EOF_MAX);
-//        }
-        if (_txStatus == Status::Sof)
+        SetTimerAlarm(EofChnCompareValue, curVal + RX_EOF_MIN);
+        switch (_txStatus)
         {
-            _txBitInBytePos = 7;
-            _txLastSym = 1;
-            _txLastBit = 1;
-            _txBuffByte = 0;
-            _txStatus = Status::Active;
-            SetTimerAlarm(OutputChnCompareValue, curVal + US2TICKS(SOF_US));
-        } else
-        {
-            if (_txStatus == Status::Active)
+            case Status::Idle:
+                break;
+            case Status::Sof:
+            {
+                _txBitInBytePos = 7;
+                _txLastSym = 1;
+                _txLastBit = 1;
+                _txBuffByte = 0;
+                _txStatus = Status::Active;
+                SetTimerAlarm(OutputChnCompareValue, curVal + US2TICKS(SOF_US));
+            }
+                break;
+            case Status::Active:
             {
                 uint8_t txBit = (_txMessageBuffer.Data[_txBuffByte] >> _txBitInBytePos) & 1;
                 uint8_t txSym = txBit == _txLastBit ? !_txLastSym : _txLastSym;
                 _txLastBit = txBit;
                 _txLastSym = txSym;
                 auto pulseLen = txSym ? US2TICKS(SHORT_US) : US2TICKS(LONG_US);
-                _txBitInBytePos--;
-                if (_txBitInBytePos < 0)
-                {
-                    _txBuffByte++;
-                    _txBitInBytePos = 7;
-                }
+
                 if (_txBitInBytePos == 0 && _txBuffByte == _txMessageBuffer.Len)
                 {
-                    _txStatus = Status::Idle;
-                    *OutputChnCompareValue = CompareDisabled;
+                    _txStatus = Status::Eof;
                 } else
                 {
-                    SetTimerAlarm(OutputChnCompareValue, curVal + pulseLen);
+                    _txBitInBytePos--;
+                    if (_txBitInBytePos < 0)
+                    {
+                        _txBuffByte++;
+                        _txBitInBytePos = 7;
+                    }
                 }
 
+                SetTimerAlarm(OutputChnCompareValue, curVal + pulseLen);
             }
+                break;
+            case Status::Eof:
+            {
+                *OutputChnCompareValue = CompareDisabled;
+                _txStatus = Status::Idle;
+            }
+                break;
+            default:
+                _txStatus = Status::Idle;
+                break;
         }
         PrevCntrVal = curVal;
     }
