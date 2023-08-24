@@ -157,7 +157,7 @@ uint32_t Vpw::OnTimerEvent(uint32_t status)
             if (_txStatus == Status::Active)
             {
                 uint8_t txBit = (_txMessageBuffer.Data[_txBuffByte] >> _txBitInBytePos) & 1;
-                uint8_t txSym = txBit == _txLastBit ? _txLastSym : !_txLastSym;
+                uint8_t txSym = txBit == _txLastBit ? !_txLastSym : _txLastSym;
                 _txLastBit = txBit;
                 _txLastSym = txSym;
                 auto pulseLen = txSym ? US2TICKS(SHORT_US) : US2TICKS(LONG_US);
