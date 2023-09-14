@@ -20,6 +20,7 @@
 
 #include <cstdint>
 #include <array>
+#include <queue>
 #include "fsl_device_registers.h"
 
 
@@ -54,42 +55,46 @@ namespace App::CDD {
 #define EOF_IDX   3
 
 
-    class Vpw {
-    public:
-        Vpw();
-
-        std::vector<uint8_t> GetData();
-
-        void SendData(const std::vector<uint8_t> &data);
-
+    class Vpw
+    {
     private:
         static constexpr int MaxDataSize = 15;
-        static constexpr uint16_t CompareDisabled = UINT16_MAX;
-        static constexpr uint32_t CounterMax = CompareDisabled - 1;
-        static const std::array<uint8_t, 256> _crcTable;
 
-        enum class Status {
-            Idle,
-            Sof,
-            Active,
-            Eof,
-            Failed
-        };
-
+    public:
         struct Message
         {
             uint8_t Len;
             std::array<uint8_t, MaxDataSize> Data;
         };
 
-        struct MessageQueue {
-            uint16_t CurrentIdx;
-            uint16_t LastIdx;
-            std::array<Message, 7> Queue;
+        Vpw();
+
+        std::vector<uint8_t> GetData();
+
+        void SendData(const std::vector<uint8_t> &data);
+
+        void SendPeriodic(Message &message, int period);
+
+        void VpwMainFunction();
+
+    private:
+        static constexpr uint16_t CompareDisabled = UINT16_MAX;
+        static constexpr uint32_t CounterMax = CompareDisabled - 1;
+        static const std::array<uint8_t, 256> _crcTable;
+
+        enum class Status
+        {
+            Idle,
+            Sof,
+            Active,
+            Eof,
+            Done,
+            Failed
         };
 
-        MessageQueue _rxFifo{.CurrentIdx = 0, .LastIdx=0};
-        MessageQueue _txFifo{.CurrentIdx = 0, .LastIdx=0};
+
+        std::queue<Message> _rxFifo{};
+        std::queue<Message> _txFifo{};
 
         Message _txMessageBuffer{};
         int8_t _txBitInBytePos{};
@@ -107,9 +112,6 @@ namespace App::CDD {
 
         Status _txStatus{Status::Idle}
         , _rxStatus{Status::Idle};
-
-        uint8_t VPW_TxBuf[(TX_BUFLEN + 1) * 8]{};
-
 
         uint32_t OnTimerEvent(uint32_t status);
 
@@ -129,6 +131,7 @@ namespace App::CDD {
 
         uint32_t PrevCntrVal{0};
 
+        void StartTx();
     };
 }// namespace App::J1850Vpw
 

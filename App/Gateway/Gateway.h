@@ -62,7 +62,7 @@ namespace App {
 
         void UpdateFrame536();
 
-        void UpdateFrameBase550();
+        void UpdateFrame550();
 
     public:
 
@@ -75,6 +75,8 @@ namespace App {
         bool GetBrakePressed() const;
 
         int16_t GetAverageSpeed() const;
+
+        uint16_t GetRpm();
     };
 
 }// namespace App

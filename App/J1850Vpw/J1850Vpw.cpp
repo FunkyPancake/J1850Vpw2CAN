@@ -44,8 +44,9 @@ Vpw::Vpw()
 //    FTM3->FILTER |= FTM_FILTER_CH3FVAL(3);
     *OutputChnCompareValue = CompareDisabled;
     *EofChnCompareValue = CompareDisabled;
+    FTM3->MODE = FTM_MODE_INIT_MASK;
+    _txStatus = Status::Idle;
     ResetRx();
-    FinalizeTx();
     FTM_StartTimer(FTM3, kFTM_FixedClock);
 }
 
@@ -70,16 +71,8 @@ inline uint16_t Vpw::GetPulseWidth(uint16_t a, uint16_t b)
 inline void Vpw::ResetRx()
 {
     _rxStatus = Status::Idle;
-//    FTM3->CONTROLS[3].CnSC &= ~(FTM_CnSC_ELSB_MASK);
     _rxMessageBuffer.Len = 0;
     *EofChnCompareValue = CompareDisabled;
-}
-
-void Vpw::FinalizeTx()
-{
-    *OutputChnCompareValue = CompareDisabled;
-    FTM3->MODE = FTM_MODE_INIT_MASK;
-    _txStatus = Status::Idle;
 }
 
 
@@ -87,6 +80,8 @@ uint32_t Vpw::OnTimerEvent(uint32_t status)
 {
     GPIO_PinWrite(BOARD_INITPINS_D2_GPIO, BOARD_INITPINS_D2_PIN, 0);
     uint32_t eventsToClear = 0;
+    uint8_t bit = 0;
+    uint32_t width;
     uint32_t curVal = FTM3->CNT;
 
     if (status & kFTM_Chnl3Flag)
@@ -94,14 +89,13 @@ uint32_t Vpw::OnTimerEvent(uint32_t status)
         eventsToClear |= kFTM_Chnl3Flag;
 
 
-        if (_rxStatus == Status::Idle && (FTM3->CONTROLS[3].CnSC & FTM_CnSC_CHIS_MASK) == FTM_CnSC_CHIS_MASK)
+//        if (_rxStatus == Status::Idle && (FTM3->CONTROLS[3].CnSC & FTM_CnSC_CHIS_MASK) == FTM_CnSC_CHIS_MASK)
+        if (_rxStatus == Status::Idle)
         {
             _rxStatus = Status::Active;
         } else
         {
-            uint32_t width;
             int32_t sym = -1;
-            uint8_t bit = 0;
             width = GetPulseWidth(PrevCntrVal, curVal);
             if (width > RX_SOF_MIN && width <= RX_SOF_MAX)
             {
@@ -110,6 +104,7 @@ uint32_t Vpw::OnTimerEvent(uint32_t status)
                 _rxBitInBytePos = 7;
                 _rxLastBit = 1;
                 _rxLastSym = 1;
+                bit = 1;
             } else if (width > RX_LONG_MIN && width <= RX_LONG_MAX)
             {
                 sym = LONG_IDX;
@@ -119,9 +114,12 @@ uint32_t Vpw::OnTimerEvent(uint32_t status)
             }
             if (sym != -1)
             {
-                bit = (sym == _rxLastSym) ? _rxLastBit ^ 1 : _rxLastBit;
+                bit = (sym == _rxLastSym) ? !_rxLastBit : _rxLastBit;
                 _rxLastBit = bit;
                 _rxLastSym = sym;
+                _rxBuffByte |= bit << _rxBitInBytePos;
+                _rxBitInBytePos--;
+
                 if (_rxBitInBytePos < 0)
                 {
                     _rxMessageBuffer.Data[_rxMessageBuffer.Len] = _rxBuffByte;
@@ -129,15 +127,10 @@ uint32_t Vpw::OnTimerEvent(uint32_t status)
                     _rxBuffByte = 0;
                     _rxBitInBytePos = 7;
                 }
-                _rxBuffByte |= bit << _rxBitInBytePos;
-                _rxBitInBytePos--;
             }
         }
-        SetTimerAlarm(EofChnCompareValue, curVal + RX_EOF_MIN);
         switch (_txStatus)
         {
-            case Status::Idle:
-                break;
             case Status::Sof:
             {
                 _txBitInBytePos = 7;
@@ -152,46 +145,77 @@ uint32_t Vpw::OnTimerEvent(uint32_t status)
             {
                 uint8_t txBit = (_txMessageBuffer.Data[_txBuffByte] >> _txBitInBytePos) & 1;
                 uint8_t txSym = txBit == _txLastBit ? !_txLastSym : _txLastSym;
-                _txLastBit = txBit;
-                _txLastSym = txSym;
-                auto pulseLen = txSym ? US2TICKS(SHORT_US) : US2TICKS(LONG_US);
+//                if ( txBit!= bit)
+//                {
+//                    _txStatus = Status::Failed;
+//                    *OutputChnCompareValue = CompareDisabled;
+//                } else
+                {
+                    _txLastBit = txBit;
+                    _txLastSym = txSym;
+                    auto pulseLen = txSym ? US2TICKS(SHORT_US) : US2TICKS(LONG_US);
 
-                if (_txBitInBytePos == 0 && _txBuffByte == _txMessageBuffer.Len)
-                {
-                    _txStatus = Status::Eof;
-                } else
-                {
-                    _txBitInBytePos--;
-                    if (_txBitInBytePos < 0)
+                    if (_txBitInBytePos == 0 && _txBuffByte == _txMessageBuffer.Len)
                     {
-                        _txBuffByte++;
-                        _txBitInBytePos = 7;
+                        _txStatus = Status::Eof;
+                    } else
+                    {
+                        _txBitInBytePos--;
+                        if (_txBitInBytePos < 0)
+                        {
+                            _txBuffByte++;
+                            _txBitInBytePos = 7;
+                        }
                     }
-                }
 
-                SetTimerAlarm(OutputChnCompareValue, curVal + pulseLen);
+                    SetTimerAlarm(OutputChnCompareValue, curVal + pulseLen);
+                }
             }
                 break;
             case Status::Eof:
             {
                 *OutputChnCompareValue = CompareDisabled;
-                _txStatus = Status::Idle;
+                _txStatus = Status::Done;
             }
                 break;
             default:
-                _txStatus = Status::Idle;
                 break;
         }
+
+        SetTimerAlarm(EofChnCompareValue, curVal + RX_EOF_MIN);
         PrevCntrVal = curVal;
     }
     if (status & kFTM_Chnl0Flag)
     {
         eventsToClear |= kFTM_Chnl0Flag;
-        _rxFifo.LastIdx = (_rxFifo.LastIdx + 1) & 7;
-        _rxFifo.Queue[_rxFifo.LastIdx] = _rxMessageBuffer;
+        if (_txStatus != Status::Done)
+        {
+            _rxFifo.push(_rxMessageBuffer);
+        }
         *OutputChnCompareValue = CompareDisabled;
-        _txStatus = Status::Idle;
         ResetRx();
+
+        switch (_txStatus)
+        {
+            case Status::Idle:
+            case Status::Done:
+                if (_txFifo.empty())
+                {
+                    _txStatus = Status::Idle;
+                } else
+                {
+                    _txMessageBuffer = _txFifo.front();
+                    _txFifo.pop();
+                    StartTx();
+                }
+                break;
+            case Status::Failed:
+                StartTx();
+                break;
+            default:
+                _txStatus = Status::Idle;
+                break;
+        }
     }
     GPIO_PinWrite(BOARD_INITPINS_D2_GPIO, BOARD_INITPINS_D2_PIN, 1);
 
@@ -228,13 +252,27 @@ void Vpw::SendData(const std::vector<uint8_t> &data)
     if (_rxStatus == Status::Idle && _txStatus == Status::Idle)
     {
         _txMessageBuffer = msg;
-        FTM3->MODE = FTM_MODE_INIT_MASK;
-        _txStatus = Status::Sof;
-        auto curVal = FTM3->CNT;
-        SetTimerAlarm(OutputChnCompareValue, curVal + 10);
+        StartTx();
     } else
     {
-        _txFifo.LastIdx = (_txFifo.LastIdx + 1) & 0x7;
-        _txFifo.Queue[_txFifo.LastIdx] = msg;
+        _txFifo.push(msg);
     }
+}
+
+void Vpw::StartTx()
+{
+    FTM3->MODE = FTM_MODE_INIT_MASK;
+    _txStatus = Status::Sof;
+    auto curVal = FTM3->CNT;
+    SetTimerAlarm(OutputChnCompareValue, curVal + 10);
+}
+
+void Vpw::VpwMainFunction()
+{
+
+}
+
+void Vpw::SendPeriodic(Vpw::Message &message, int period)
+{
+
 }

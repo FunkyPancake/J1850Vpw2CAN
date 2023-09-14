@@ -18,7 +18,8 @@
 
 using namespace App;
 
-App::GearSelector::SelectorPosition App::GearSelector::GetCurrentPosition() {
+App::GearSelector::SelectorPosition App::GearSelector::GetCurrentPosition()
+{
     auto c2 = 0;
     auto c3 = 0;
     auto c4 = 0;
@@ -26,18 +27,22 @@ App::GearSelector::SelectorPosition App::GearSelector::GetCurrentPosition() {
     return selectorPosition;
 }
 
-App::GearSelector::Gear App::GearSelector::GetGear() {
+App::GearSelector::Gear App::GearSelector::GetGear()
+{
     return _gear;
 }
 
-App::GearSelector::DriveMode App::GearSelector::GetDriveMode() {
+App::GearSelector::DriveMode App::GearSelector::GetDriveMode()
+{
     return _driveMode;
 }
 
-void App::GearSelector::MainFunction() {
+void App::GearSelector::MainFunction()
+{
     auto position = GetCurrentPosition();
     ControlParkSelenoid();
-    switch (position) {
+    switch (position)
+    {
         case SelectorPosition::P:
             _gear = Gear::P;
             _driveMode = DriveMode::Eco;
@@ -70,21 +75,27 @@ void App::GearSelector::MainFunction() {
     }
 }
 
-void GearSelector::SetSpeedAndBrake(int16_t speed, bool brake) {
-    _speed = speed;
-    _brake = brake;
-}
-
-void GearSelector::ControlParkSelenoid() {
-    if (_speed < ParkSelenoidSpeedThreshold && _brake) {
+void GearSelector::ControlParkSelenoid()
+{
+    if (GetSpeed() < ParkSelenoidSpeedThreshold && GetBrake())
+    {
         _parkSelenoidControlState = true;
         _parkSelenoidTimer = ParkSelenoidTimerReloadValue;
-    } else {
-        if (_parkSelenoidTimer != 0) {
+    } else
+    {
+        if (_parkSelenoidTimer != 0)
+        {
             _parkSelenoidTimer--;
             return;
         }
         _parkSelenoidControlState = false;
     }
-    GPIO_PinWrite(BOARD_INITPINS_PARKS_GPIO, BOARD_INITPINS_PARKS_PIN, _parkSelenoidControlState ? 1 : 0);
+    SetOutput(_parkSelenoidControlState);
+}
+
+GearSelector::GearSelector(const std::function<int16_t()> &getSpeed, const std::function<bool()> &getBrake,
+                           const std::function<void(bool)> &setOutput) : GetSpeed(getSpeed), GetBrake(getBrake),
+                                                                         SetOutput(setOutput)
+{
+
 }

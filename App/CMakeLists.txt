@@ -9,6 +9,7 @@ target_sources(${TARGET_NAME}
         AppTasks.cpp
         main.cpp
         GearSelector/GearSelector.cpp
+        StarterControl/StarterControl.cpp
         Gateway/Gateway.cpp
         J1850Vpw/J1850Vpw.cpp
 )
@@ -16,6 +17,7 @@ target_sources(${TARGET_NAME}
 target_include_directories(${TARGET_NAME}
         PUBLIC
         GearSelector
+        StarterControl
         Gateway
         J1850Vpw
 )

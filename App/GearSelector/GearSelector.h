@@ -19,9 +19,9 @@
 #define KEWJGWTCU_GEARSELECTOR_H
 
 #include <cstdint>
+#include <functional>
 
-namespace App
-{
+namespace App {
     class GearSelector
     {
 
@@ -33,6 +33,7 @@ namespace App
             N = 0x4,
             D = 0x8
         };
+
         enum class DriveMode
         {
             Eco,
@@ -40,13 +41,17 @@ namespace App
             Sport,
             SportPlus
         };
+
+        GearSelector(const std::function<int16_t()> &getSpeed, const std::function<bool()> &getBrake,
+                     const std::function<void(bool)> &setOutput);
+
         Gear GetGear();
+
         DriveMode GetDriveMode();
+
         void MainFunction();
 
         void ControlParkSelenoid();
-
-        void SetSpeedAndBrake(int16_t speed, bool brake);
 
     private:
         enum class SelectorPosition
@@ -60,15 +65,18 @@ namespace App
             D2 = 0b000,
             D1 = 0b101
         };
+
         SelectorPosition GetCurrentPosition();
+
         Gear _gear;
         DriveMode _driveMode;
         const int16_t ParkSelenoidSpeedThreshold = 5;
         const int16_t ParkSelenoidTimerReloadValue = 10;
         int16_t _parkSelenoidTimer{ParkSelenoidTimerReloadValue};
-        int16_t _speed;
         bool _parkSelenoidControlState{false};
-        bool _brake;
+        std::function<int16_t()> GetSpeed;
+        std::function<bool()> GetBrake;
+        std::function<void(bool)> SetOutput;
     };
 }// namespace App
 

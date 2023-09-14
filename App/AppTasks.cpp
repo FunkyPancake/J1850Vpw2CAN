@@ -22,6 +22,7 @@
 #include "peripherals.h"
 #include "pin_mux.h"
 #include <memory>
+#include "StarterControl/StarterControl.h"
 
 #define MS2TICKS(x) (configTICK_RATE_HZ / 1000 * (x))
 
@@ -42,24 +43,32 @@ constexpr UBaseType_t app_task_PRIORITY = (configMAX_PRIORITIES - 1);
     auto can2 = std::make_shared<FlexCan>(CAN1, 16);
     auto gateway = Gateway(can1, can2);
     LpSpiRtos sbcSpi{&LPSPI0_handle};
-    Tle9461 sbc{&sbcSpi};
+    Tle9461 sbc{sbcSpi};
 
     auto canTp = CanTp{*can1};
     auto uds = Uds{&canTp};
-    App::GearSelector gearSelector{};
-
+    App::GearSelector gearSelector = App::GearSelector(
+            [&gateway] { return gateway.GetAverageSpeed(); },
+            [&gateway] { return gateway.GetBrakePressed(); },
+            [](auto value) { GPIO_PinWrite(BOARD_INITPINS_PARKS_GPIO, BOARD_INITPINS_PARKS_PIN, value ? 1 : 0); }
+    );
+    App::StarterControl starterControl = App::StarterControl(
+            [&gateway]() { return gateway.GetRpm(); },
+            []() { return false; },
+            [&gearSelector]() { return gearSelector.GetGear(); },
+            [](auto value) { GPIO_PinWrite(BOARD_INITPINS_D4_GPIO, BOARD_INITPINS_D4_PIN, value ? 1 : 0); }
+    );
     TickType_t xLastWakeTime = xTaskGetTickCount();
-    sbc.Init();
-    sbc.ConfigWatchdog(Tle9461::WgTimer200ms);
-    for (;;) {
+    for (;;)
+    {
         GPIO_PinWrite(BOARD_INITPINS_D1_GPIO, BOARD_INITPINS_D1_PIN, 0);
         can1->RxTask();
         can2->RxTask();
         uds.MainFunction();
 
-        gearSelector.SetSpeedAndBrake(gateway.GetAverageSpeed(), gateway.GetBrakePressed());
         gearSelector.MainFunction();
-        gateway.SetGearAndMode(gearSelector.GetGear(), gearSelector.GetDriveMode());
+        starterControl.MainFunction();
+
         gateway.MainFunction();
         canTp.TxMainFunction();
         can1->TxTask();
@@ -69,12 +78,13 @@ constexpr UBaseType_t app_task_PRIORITY = (configMAX_PRIORITIES - 1);
         vTaskDelayUntil(&xLastWakeTime, xFrequency);
     }
 }
+
 void AppTasksInit()
 {
 
     if (xTaskCreate(appTask, "appTask", configMINIMAL_STACK_SIZE + 512, nullptr, app_task_PRIORITY, nullptr)
-        != pdPASS) {
-        while (true)
-            ;
+        != pdPASS)
+    {
+        while (true);
     }
 }

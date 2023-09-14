@@ -46,22 +46,16 @@ namespace App {
     }
 
     void Gateway::MainFunction() {
+        //Update signals on CAN1
         UpdateFrame218();
-
+        //Update signals on CAN2
         UpdateFrame520();
         UpdateFrame523();
         UpdateFrame525();
         UpdateFrame526();
         UpdateFrame530();
         UpdateFrame536();
-        static int i = 0;
-        if (i > 20) {
-//            _vpw.SendData({0x8D, 0x93, 0x01, 0x01, 0x80});
-            i = 0;
-        } else {
-            i++;
-        }
-        UpdateFrameBase550();
+        UpdateFrame550();
     }
 
     void Gateway::SetGearAndMode(GearSelector::Gear gear, GearSelector::DriveMode mode) {
@@ -173,7 +167,8 @@ namespace App {
         _can2->UpdateCyclicFrame(0x536, payload);
     }
 
-    void Gateway::UpdateFrameBase550() {
+    void Gateway::UpdateFrame550()
+    {
         Payload payload{};
 //        if (xSemaphoreTake(_mutex, (TickType_t) MutexWaitTicks) == pdTRUE) {
         payload.b[0] = static_cast<uint16_t>(_gear);
@@ -189,6 +184,11 @@ namespace App {
 
     int16_t Gateway::GetAverageSpeed() const {
         return static_cast<int16_t>((speedRL_ + speedRR_) / 2);
+    }
+
+    uint16_t Gateway::GetRpm()
+    {
+        return rpm_;
     }
 
 }// namespace App
