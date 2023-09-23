@@ -35,7 +35,7 @@ namespace App {
         uint8_t _brake{};
         GearSelector::Gear _gear{GearSelector::Gear::N};
         GearSelector::DriveMode _mode{GearSelector::DriveMode::Comfort};
-        CDD::Vpw _vpw;
+//        CDD::Vpw _vpw;
         int MutexWaitTicks{100};
 
         std::shared_ptr<KeCommon::Bsw::Can::ICan> _can1, _can2;

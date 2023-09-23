@@ -17,10 +17,6 @@
 #include "fsl_lpspi.h"
 #include "fsl_lpspi_freertos.h"
 #include "fsl_ftm.h"
-#include "fsl_lpuart.h"
-#include "fsl_lpuart_edma.h"
-#include "fsl_adc12.h"
-#include "fsl_lpit.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -68,44 +64,9 @@ extern "C" {
 /* FTM3 interrupt handler identifier. */
 #define FTM3_IRQHANDLER FTM3_IRQHandler
 /* Definition of peripheral ID */
-#define LPUART0_PERIPHERAL LPUART0
-/* Definition of the clock source frequency */
-#define LPUART0_CLOCK_SOURCE 10500000UL
-/* LPUART0 eDMA source request. */
-#define LPUART0_RX_DMA_REQUEST kDmaRequestMux0LPUART0Rx
-/* Selected eDMA channel number. */
-#define LPUART0_RX_DMA_CHANNEL 0
-/* DMAMUX device that is used for muxing of the request. */
-#define LPUART0_RX_DMAMUX_BASEADDR DMAMUX
-/* Used DMA device. */
-#define LPUART0_RX_DMA_BASEADDR DMA0
-/* LPUART0 eDMA source request. */
-#define LPUART0_TX_DMA_REQUEST kDmaRequestMux0LPUART0Tx
-/* Selected eDMA channel number. */
-#define LPUART0_TX_DMA_CHANNEL 1
-/* DMAMUX device that is used for muxing of the request. */
-#define LPUART0_TX_DMAMUX_BASEADDR DMAMUX
-/* Used DMA device. */
-#define LPUART0_TX_DMA_BASEADDR DMA0
-/* Definition of peripheral ID */
 #define CAN1_PERIPHERAL CAN1
 /* Definition of the clock source frequency */
 #define CAN1_CLOCK_SOURCE 84000000UL
-/* Alias for ADC0 peripheral */
-#define ADC0_PERIPHERAL ADC0
-/* ADC0 interrupt vector ID (number). */
-#define ADC0_IRQN ADC0_IRQn
-/* ADC0 interrupt handler identifier. */
-#define ADC0_IRQHANDLER ADC0_IRQHandler
-/* BOARD_InitPeripherals defines for LPIT0 */
-/* Definition of peripheral ID. */
-#define LPIT0_PERIPHERAL LPIT0
-/* Definition of clock source frequency. */
-#define LPIT0_CLK_FREQ 12000000UL
-/* Definition of ticks count for channel Channel_0. */
-#define LPIT0_CHANNEL_0_TICKS 11999U
-/* Definition of channel kLPIT_Chnl_0 ID */
-#define LPIT0_CHANNEL_0 kLPIT_Chnl_0
 
 /***********************************************************************************************************************
  * Global variables
@@ -119,19 +80,10 @@ extern const lpspi_master_config_t LPSPI0_config;
 extern lpspi_transfer_t LPSPI0_transfer;
 extern lpspi_rtos_handle_t LPSPI0_handle;
 extern const ftm_config_t FTM3_config;
-extern const lpuart_config_t LPUART0_config;
-extern edma_handle_t LPUART0_RX_Handle;
-extern edma_handle_t LPUART0_TX_Handle;
-extern lpuart_edma_handle_t LPUART0_LPUART_eDMA_Handle;
 extern const flexcan_config_t CAN1_config;
 /* Message buffer 0 configuration structure */
 extern const flexcan_rx_mb_config_t CAN1_rx_mb_config_0;
 extern flexcan_rx_fifo_config_t CAN1_rx_fifo_config;
-extern const adc12_config_t ADC0_config;
-extern adc12_channel_config_t ADC0_channelsConfig[3];
-extern const adc12_hardware_average_mode_t ADC0_hardwareAverageConfig;
-extern const lpit_config_t LPIT0_config;
-extern const lpit_chnl_params_t LPIT0_Channel_0_struct;
 
 /***********************************************************************************************************************
  * Initialization functions

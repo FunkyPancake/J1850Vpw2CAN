@@ -23,9 +23,9 @@
 /* clang-format off */
 /* TEXT BELOW IS USED AS SETTING FOR TOOLS *************************************
 !!GlobalInfo
-product: Clocks v11.0
-processor: MKE18F256xxx16
-package_id: MKE18F256VLH16
+product: Clocks v12.0
+processor: MKE18F512xxx16
+package_id: MKE18F512VLH16
 mcu_data: ksdk2_0
 processor_version: 13.0.1
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS **********/
@@ -37,6 +37,7 @@ processor_version: 13.0.1
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
+#define SIM_CHIPCTL_TRACECLK_SEL_CORECLK                  0U  /*!< Debug trace clock select: core clock */
 
 /*******************************************************************************
  * Variables
@@ -45,6 +46,26 @@ processor_version: 13.0.1
 /*******************************************************************************
  * Code
  ******************************************************************************/
+/*FUNCTION**********************************************************************
+ *
+ * Function Name : CLOCK_CONFIG_SetTraceClock
+ * Description   : Set the Debug trace clock.
+ * Param src     : The selected clock source.
+ * Param frac    : Trace clock divider fraction.
+ * Param div     : Trace clock divider divisor.
+ * Param enable  : Debug Trace Divider control.
+ *
+ *END**************************************************************************/
+static void CLOCK_CONFIG_SetTraceClock(uint8_t src, uint8_t frac, uint8_t div, bool enable)
+{
+    /* Disable Debug trace divider for setup it. */
+    SIM->CLKDIV4 = (SIM->CLKDIV4 & ~SIM_CLKDIV4_TRACEDIVEN_MASK);
+    SIM->CHIPCTL = ((SIM->CHIPCTL & ~SIM_CHIPCTL_TRACECLK_SEL_MASK) | SIM_CHIPCTL_TRACECLK_SEL(src));
+    SIM->CLKDIV4 = ((SIM->CLKDIV4 & ~SIM_CLKDIV4_TRACEFRAC_MASK) | SIM_CLKDIV4_TRACEFRAC(frac));
+    SIM->CLKDIV4 = ((SIM->CLKDIV4 & ~SIM_CLKDIV4_TRACEDIV_MASK) | SIM_CLKDIV4_TRACEDIV(div));
+    SIM->CLKDIV4 = ((SIM->CLKDIV4 & ~SIM_CLKDIV4_TRACEDIVEN_MASK) | SIM_CLKDIV4_TRACEDIVEN(enable));
+}
+
 /*FUNCTION**********************************************************************
  *
  * Function Name : CLOCK_CONFIG_FircSafeConfig
@@ -114,11 +135,13 @@ outputs:
 - {id: LPO1KCLK.outFreq, value: 1 kHz}
 - {id: LPO_clock.outFreq, value: 128 kHz}
 - {id: PCC.PCC_ADC0_CLK.outFreq, value: 12 MHz}
+- {id: PCC.PCC_ADC1_CLK.outFreq, value: 12 MHz}
+- {id: PCC.PCC_ADC2_CLK.outFreq, value: 12 MHz}
 - {id: PCC.PCC_FTM3_CLK.outFreq, value: 12 MHz}
 - {id: PCC.PCC_LPIT0_CLK.outFreq, value: 12 MHz}
 - {id: PCC.PCC_LPSPI0_CLK.outFreq, value: 10.5 MHz}
-- {id: PCC.PCC_LPSPI1_CLK.outFreq, value: 10.5 MHz}
 - {id: PCC.PCC_LPUART0_CLK.outFreq, value: 10.5 MHz}
+- {id: PCC.PCC_LPUART2_CLK.outFreq, value: 10.5 MHz}
 - {id: PLLDIV1_CLK.outFreq, value: 21 MHz}
 - {id: PLLDIV2_CLK.outFreq, value: 10.5 MHz}
 - {id: SIRC_CLK.outFreq, value: 8 MHz}
@@ -126,15 +149,18 @@ outputs:
 - {id: SOSCDIV2_CLK.outFreq, value: 12 MHz}
 - {id: SOSC_CLK.outFreq, value: 12 MHz}
 - {id: System_clock.outFreq, value: 168 MHz}
+- {id: TRACECLKIN.outFreq, value: 168 MHz}
 settings:
 - {id: SCGMode, value: SPLL}
 - {id: powerMode, value: HSRUN}
 - {id: PCC.PCC_ADC0_SEL.sel, value: SCG.SOSCDIV2_CLK}
+- {id: PCC.PCC_ADC1_SEL.sel, value: SCG.SOSCDIV2_CLK}
+- {id: PCC.PCC_ADC2_SEL.sel, value: SCG.SOSCDIV2_CLK}
 - {id: PCC.PCC_FTM3_SEL.sel, value: SCG.SOSCDIV1_CLK}
 - {id: PCC.PCC_LPIT0_SEL.sel, value: SCG.SOSCDIV2_CLK}
 - {id: PCC.PCC_LPSPI0_SEL.sel, value: SCG.PLLDIV2_CLK}
-- {id: PCC.PCC_LPSPI1_SEL.sel, value: SCG.PLLDIV2_CLK}
 - {id: PCC.PCC_LPUART0_SEL.sel, value: SCG.PLLDIV2_CLK}
+- {id: PCC.PCC_LPUART2_SEL.sel, value: SCG.PLLDIV2_CLK}
 - {id: SCG.DIVBUS.scale, value: '2'}
 - {id: SCG.DIVSLOW.scale, value: '7'}
 - {id: SCG.SCSSEL.sel, value: SCG.SPLL_DIV2_CLK}
@@ -143,10 +169,11 @@ settings:
 - {id: SCG.SPLLDIV1.scale, value: '8'}
 - {id: SCG.SPLLDIV2.scale, value: '16', locked: true}
 - {id: SCG.SPLL_mul.scale, value: '28'}
-- {id: SCG_SOSCCFG_OSC_MODE_CFG, value: ModeOscHighGain}
+- {id: SCG_SOSCCFG_OSC_MODE_CFG, value: ModeOscLowPower}
 - {id: SCG_SOSCCFG_RANGE_CFG, value: High}
 - {id: SCG_SOSCCSR_SOSCEN_CFG, value: Enabled}
 - {id: SCG_SPLLCSR_SPLLEN_CFG, value: Enabled}
+- {id: TraceClkConfig, value: 'yes'}
 sources:
 - {id: SCG.SOSC.outFreq, value: 12 MHz, enabled: true}
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS **********/
@@ -169,22 +196,22 @@ const scg_sosc_config_t g_scgSysOscConfig_BOARD_BootClockRUN =
                 .monitorMode = kSCG_SysOscMonitorDisable, /* Monitor disabled */
                 .div1 = kSCG_AsyncClkDivBy1,              /* System OSC Clock Divider 1: divided by 1 */
                 .div2 = kSCG_AsyncClkDivBy1,              /* System OSC Clock Divider 2: divided by 1 */
-                .workMode = kSCG_SysOscModeOscHighGain,   /* Oscillator high gain */
+                .workMode = kSCG_SysOscModeOscLowPower,   /* Oscillator low power */
         };
 const scg_sirc_config_t g_scgSircConfig_BOARD_BootClockRUN =
         {
                 .enableMode = kSCG_SircEnable |
                               kSCG_SircEnableInLowPower,/* Enable SIRC clock, Enable SIRC in low power mode */
                 .div1 = kSCG_AsyncClkDisable,             /* Slow IRC Clock Divider 1: Clock output is disabled */
-        .div2 = kSCG_AsyncClkDisable,             /* Slow IRC Clock Divider 2: Clock output is disabled */
-        .range = kSCG_SircRangeHigh,              /* Slow IRC high range clock (8 MHz) */
-    };
+                .div2 = kSCG_AsyncClkDisable,             /* Slow IRC Clock Divider 2: Clock output is disabled */
+                .range = kSCG_SircRangeHigh,              /* Slow IRC high range clock (8 MHz) */
+        };
 const scg_firc_config_t g_scgFircConfig_BOARD_BootClockRUN =
-    {
-        .enableMode = kSCG_FircEnable,            /* Enable FIRC clock */
-        .div1 = kSCG_AsyncClkDisable,             /* Fast IRC Clock Divider 1: Clock output is disabled */
-        .div2 = kSCG_AsyncClkDisable,             /* Fast IRC Clock Divider 2: Clock output is disabled */
-        .range = kSCG_FircRange48M,               /* Fast IRC is trimmed to 48MHz */
+        {
+                .enableMode = kSCG_FircEnable,            /* Enable FIRC clock */
+                .div1 = kSCG_AsyncClkDisable,             /* Fast IRC Clock Divider 1: Clock output is disabled */
+                .div2 = kSCG_AsyncClkDisable,             /* Fast IRC Clock Divider 2: Clock output is disabled */
+                .range = kSCG_FircRange48M,               /* Fast IRC is trimmed to 48MHz */
         .trimConfig = NULL,                       /* Fast IRC Trim disabled */
     };
 const scg_spll_config_t g_scgSysPllConfig_BOARD_BootClockRUN =
@@ -230,14 +257,20 @@ void BOARD_BootClockRUN(void)
     } while (curConfig.src != g_sysClkConfig_BOARD_BootClockRUN.src);
     /* Set SystemCoreClock variable. */
     SystemCoreClock = BOARD_BOOTCLOCKRUN_CORE_CLOCK;
+    /* Set Debug trace clock. */
+    CLOCK_CONFIG_SetTraceClock(SIM_CHIPCTL_TRACECLK_SEL_CORECLK, 0, 0, true);
     /* Set PCC ADC0 selection */
     CLOCK_SetIpSrc(kCLOCK_Adc0, kCLOCK_IpSrcSysOscAsync);
+    /* Set PCC ADC1 selection */
+    CLOCK_SetIpSrc(kCLOCK_Adc1, kCLOCK_IpSrcSysOscAsync);
+    /* Set PCC ADC2 selection */
+    CLOCK_SetIpSrc(kCLOCK_Adc2, kCLOCK_IpSrcSysOscAsync);
     /* Set PCC LPSPI0 selection */
     CLOCK_SetIpSrc(kCLOCK_Lpspi0, kCLOCK_IpSrcSysPllAsync);
-    /* Set PCC LPSPI1 selection */
-    CLOCK_SetIpSrc(kCLOCK_Lpspi1, kCLOCK_IpSrcSysPllAsync);
     /* Set PCC LPUART0 selection */
     CLOCK_SetIpSrc(kCLOCK_Lpuart0, kCLOCK_IpSrcSysPllAsync);
+    /* Set PCC LPUART2 selection */
+    CLOCK_SetIpSrc(kCLOCK_Lpuart2, kCLOCK_IpSrcSysPllAsync);
     /* Set PCC LPIT0 selection */
     CLOCK_SetIpSrc(kCLOCK_Lpit0, kCLOCK_IpSrcSysOscAsync);
     /* Set PCC FTM3 selection */

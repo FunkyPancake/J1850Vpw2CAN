@@ -78,7 +78,7 @@ inline void Vpw::ResetRx()
 
 uint32_t Vpw::OnTimerEvent(uint32_t status)
 {
-    GPIO_PinWrite(BOARD_INITPINS_D2_GPIO, BOARD_INITPINS_D2_PIN, 0);
+    GPIO_PinWrite(BOARD_INITPINS_LED2_GPIO, BOARD_INITPINS_LED2_PIN, 0);
     uint32_t eventsToClear = 0;
     uint8_t bit = 0;
     uint32_t width;
@@ -217,7 +217,7 @@ uint32_t Vpw::OnTimerEvent(uint32_t status)
                 break;
         }
     }
-    GPIO_PinWrite(BOARD_INITPINS_D2_GPIO, BOARD_INITPINS_D2_PIN, 1);
+    GPIO_PinWrite(BOARD_INITPINS_LED2_GPIO, BOARD_INITPINS_LED2_PIN, 1);
 
     return eventsToClear;
 }

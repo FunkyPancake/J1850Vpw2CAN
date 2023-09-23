@@ -6,9 +6,9 @@
 /* clang-format off */
 /* TEXT BELOW IS USED AS SETTING FOR TOOLS *************************************
 !!GlobalInfo
-product: Peripherals v12.0
-processor: MKE18F256xxx16
-package_id: MKE18F256VLH16
+product: Peripherals v13.0
+processor: MKE18F512xxx16
+package_id: MKE18F512VLH16
 mcu_data: ksdk2_0
 processor_version: 13.0.1
 functionalGroups:
@@ -74,8 +74,6 @@ instance:
       - enableDebugMode: 'false'
     - dma_table:
       - 0: []
-      - 1: []
-      - 2: []
     - edma_channels:
       - 0:
         - apiMode: 'nontransTCD'
@@ -440,7 +438,7 @@ instance:
         - channelId: ''
         - edge_aligned_mode: 'kFTM_OutputCompare'
         - output_compare:
-          - chnNumber: 'kFTM_Chnl_2'
+          - chnNumber: 'kFTM_Chnl_7'
           - output_compare_mode: 'kFTM_ToggleOnMatch'
           - compareValueStr: '0'
           - enable_chan_irq: 'false'
@@ -448,7 +446,7 @@ instance:
         - channelId: ''
         - edge_aligned_mode: 'kFTM_InputCapture'
         - input_capture:
-          - chnNumber: 'kFTM_Chnl_3'
+          - chnNumber: 'kFTM_Chnl_6'
           - input_capture_edge: 'kFTM_RiseAndFallEdge'
           - inputFilterPeriod: '1'
           - enable_chan_irq: 'true'
@@ -477,124 +475,18 @@ const ftm_config_t FTM3_config = {
         .useGlobalTimeBase = false
 };
 
-static void FTM3_init(void) {
+static void FTM3_init(void)
+{
     FTM_Init(FTM3_PERIPHERAL, &FTM3_config);
     FTM_SetTimerPeriod(FTM3_PERIPHERAL, FTM3_TIMER_MODULO_VALUE);
-    FTM_SetupOutputCompare(FTM3_PERIPHERAL, kFTM_Chnl_2, kFTM_ToggleOnMatch, 0U);
-    FTM_SetupInputCapture(FTM3_PERIPHERAL, kFTM_Chnl_3, kFTM_RiseAndFallEdge, 0);
+    FTM_SetupOutputCompare(FTM3_PERIPHERAL, kFTM_Chnl_7, kFTM_ToggleOnMatch, 0U);
+    FTM_SetupInputCapture(FTM3_PERIPHERAL, kFTM_Chnl_6, kFTM_RiseAndFallEdge, 0);
     FTM_SetupOutputCompare(FTM3_PERIPHERAL, kFTM_Chnl_0, kFTM_NoOutputSignal, 0U);
-    FTM_EnableInterrupts(FTM3_PERIPHERAL, kFTM_Chnl3InterruptEnable | kFTM_Chnl0InterruptEnable);
+    FTM_EnableInterrupts(FTM3_PERIPHERAL, kFTM_Chnl6InterruptEnable | kFTM_Chnl0InterruptEnable);
     /* Interrupt vector FTM3_IRQn priority settings in the NVIC. */
     NVIC_SetPriority(FTM3_IRQN, FTM3_IRQ_PRIORITY);
     /* Enable interrupt FTM3_IRQn request in the NVIC. */
     EnableIRQ(FTM3_IRQN);
-}
-
-/***********************************************************************************************************************
- * LPUART0 initialization code
- **********************************************************************************************************************/
-/* clang-format off */
-/* TEXT BELOW IS USED AS SETTING FOR TOOLS *************************************
-instance:
-- name: 'LPUART0'
-- type: 'lpuart'
-- mode: 'edma'
-- custom_name_enabled: 'false'
-- type_id: 'lpuart_54a65a580e3462acdbacefd5299e0cac'
-- functional_group: 'BOARD_InitPeripherals'
-- peripheral: 'LPUART0'
-- config_sets:
-  - lpuartConfig_t:
-    - lpuartConfig:
-      - clockSource: 'LpuartClock'
-      - lpuartSrcClkFreq: 'ClocksTool_DefaultInit'
-      - baudRate_Bps: '115200'
-      - parityMode: 'kLPUART_ParityDisabled'
-      - dataBitsCount: 'kLPUART_EightDataBits'
-      - isMsb: 'false'
-      - stopBitCount: 'kLPUART_OneStopBit'
-      - txFifoWatermark: '0'
-      - rxFifoWatermark: '1'
-      - enableRxRTS: 'false'
-      - enableTxCTS: 'false'
-      - txCtsSource: 'kLPUART_CtsSourcePin'
-      - txCtsConfig: 'kLPUART_CtsSampleAtStart'
-      - rxIdleType: 'kLPUART_IdleTypeStartBit'
-      - rxIdleConfig: 'kLPUART_IdleCharacter1'
-      - enableTx: 'true'
-      - enableRx: 'true'
-    - quick_selection: 'QuickSelection1'
-  - edmaCfg:
-    - edma_channels:
-      - enable_rx_edma_channel: 'true'
-      - edma_rx_channel:
-        - uid: '1692683194258'
-        - eDMAn: '0'
-        - eDMA_source: 'kDmaRequestMux0LPUART0Rx'
-        - enableTriggerInput: 'false'
-        - init_channel_priority: 'false'
-        - edma_channel_Preemption:
-          - enableChannelPreemption: 'false'
-          - enablePreemptAbility: 'false'
-          - channelPriority: '0'
-        - enable_custom_name: 'false'
-      - enable_tx_edma_channel: 'true'
-      - edma_tx_channel:
-        - uid: '1692683194261'
-        - eDMAn: '1'
-        - eDMA_source: 'kDmaRequestMux0LPUART0Tx'
-        - enableTriggerInput: 'false'
-        - init_channel_priority: 'false'
-        - edma_channel_Preemption:
-          - enableChannelPreemption: 'false'
-          - enablePreemptAbility: 'false'
-          - channelPriority: '0'
-        - enable_custom_name: 'false'
-    - lpuart_edma_handle:
-      - enable_custom_name: 'false'
-      - init_callback: 'false'
-      - callback_fcn: ''
-      - user_data: ''
-    - quick_selection: 'QuickSelection1'
- * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS **********/
-/* clang-format on */
-const lpuart_config_t LPUART0_config = {
-        .baudRate_Bps = 115200UL,
-        .parityMode = kLPUART_ParityDisabled,
-        .dataBitsCount = kLPUART_EightDataBits,
-        .isMsb = false,
-        .stopBitCount = kLPUART_OneStopBit,
-        .txFifoWatermark = 0U,
-        .rxFifoWatermark = 1U,
-        .enableRxRTS = false,
-        .enableTxCTS = false,
-        .txCtsSource = kLPUART_CtsSourcePin,
-        .txCtsConfig = kLPUART_CtsSampleAtStart,
-        .rxIdleType = kLPUART_IdleTypeStartBit,
-        .rxIdleConfig = kLPUART_IdleCharacter1,
-        .enableTx = true,
-        .enableRx = true
-};
-edma_handle_t LPUART0_RX_Handle;
-edma_handle_t LPUART0_TX_Handle;
-lpuart_edma_handle_t LPUART0_LPUART_eDMA_Handle;
-
-static void LPUART0_init(void) {
-    LPUART_Init(LPUART0_PERIPHERAL, &LPUART0_config, LPUART0_CLOCK_SOURCE);
-    /* Set the source kDmaRequestMux0LPUART0Rx request in the DMAMUX */
-    DMAMUX_SetSource(LPUART0_RX_DMAMUX_BASEADDR, LPUART0_RX_DMA_CHANNEL, LPUART0_RX_DMA_REQUEST);
-    /* Enable the channel 0 in the DMAMUX */
-    DMAMUX_EnableChannel(LPUART0_RX_DMAMUX_BASEADDR, LPUART0_RX_DMA_CHANNEL);
-    /* Set the source kDmaRequestMux0LPUART0Tx request in the DMAMUX */
-    DMAMUX_SetSource(LPUART0_TX_DMAMUX_BASEADDR, LPUART0_TX_DMA_CHANNEL, LPUART0_TX_DMA_REQUEST);
-    /* Enable the channel 1 in the DMAMUX */
-    DMAMUX_EnableChannel(LPUART0_TX_DMAMUX_BASEADDR, LPUART0_TX_DMA_CHANNEL);
-    /* Create the eDMA LPUART0_RX_Handle handle */
-    EDMA_CreateHandle(&LPUART0_RX_Handle, LPUART0_RX_DMA_BASEADDR, LPUART0_RX_DMA_CHANNEL);
-    /* Create the eDMA LPUART0_TX_Handle handle */
-    EDMA_CreateHandle(&LPUART0_TX_Handle, LPUART0_TX_DMA_BASEADDR, LPUART0_TX_DMA_CHANNEL);
-  /* Create the LPUART eDMA handle */
-  LPUART_TransferCreateHandleEDMA(LPUART0_PERIPHERAL, &LPUART0_LPUART_eDMA_Handle, NULL, NULL, &LPUART0_TX_Handle, &LPUART0_RX_Handle);
 }
 
 /***********************************************************************************************************************
@@ -734,165 +626,6 @@ static void CAN1_init(void) {
 }
 
 /***********************************************************************************************************************
- * ADC0 initialization code
- **********************************************************************************************************************/
-/* clang-format off */
-/* TEXT BELOW IS USED AS SETTING FOR TOOLS *************************************
-instance:
-- name: 'ADC0'
-- type: 'adc12'
-- mode: 'ADC12'
-- custom_name_enabled: 'false'
-- type_id: 'adc12_5324d28dd0212c08055a9d9cd4317082'
-- functional_group: 'BOARD_InitPeripherals'
-- peripheral: 'ADC0'
-- config_sets:
-  - fsl_adc12:
-    - enable_irq: 'false'
-    - adc_interrupt:
-      - IRQn: 'ADC0_IRQn'
-      - enable_interrrupt: 'enabled'
-      - enable_priority: 'false'
-      - priority: '0'
-      - enable_custom_name: 'false'
-    - adc12_config:
-      - referenceVoltageSource: 'kADC12_ReferenceVoltageSourceVref'
-      - clockSource: 'kADC12_ClockSourceAlt0'
-      - clockSourceFreq: 'ClocksTool_DefaultInit'
-      - clockDivider: 'kADC12_ClockDivider2'
-      - resolution: 'kADC12_Resolution12Bit'
-      - sampleClockCount: '13'
-      - enableContinuousConversion: 'true'
-    - adc12HardwareCompareConfig:
-      - hardwareCompareModeEnable: 'false'
-    - adc12_hardware_average_mode: 'kADC12_HardwareAverageCount16'
-    - hardwareTrigger: 'true'
-    - enableDMA: 'true'
-    - doAutoCalibration: 'true'
-    - offset: '0'
-    - gain: '0'
-    - adc12_channels_config:
-      - 0:
-        - channelName: ''
-        - channelNumber: 'SE.15'
-        - enableInterruptOnConversionCompleted: 'false'
-      - 1:
-        - channelName: ''
-        - channelNumber: 'SE.9'
-        - enableInterruptOnConversionCompleted: 'false'
-      - 2:
-        - channelName: ''
-        - channelNumber: 'SE.8'
-        - enableInterruptOnConversionCompleted: 'false'
- * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS **********/
-/* clang-format on */
-const adc12_config_t ADC0_config = {
-        .referenceVoltageSource = kADC12_ReferenceVoltageSourceVref,
-        .clockSource = kADC12_ClockSourceAlt0,
-        .clockDivider = kADC12_ClockDivider2,
-        .resolution = kADC12_Resolution12Bit,
-        .sampleClockCount = 13UL,
-        .enableContinuousConversion = true
-};
-adc12_channel_config_t ADC0_channelsConfig[3] = {
-        {
-                .channelNumber = 15U,
-                .enableInterruptOnConversionCompleted = false
-        },
-        {
-                .channelNumber = 9U,
-                .enableInterruptOnConversionCompleted = false
-        },
-        {
-                .channelNumber = 8U,
-                .enableInterruptOnConversionCompleted = false
-        }
-};
-const adc12_hardware_average_mode_t ADC0_hardwareAverageConfig = kADC12_HardwareAverageCount16;
-
-static void ADC0_init(void) {
-    /* Initialize ADC12 converter */
-    ADC12_Init(ADC0_PERIPHERAL, &ADC0_config);
-    /* Set to hardware trigger mode */
-    ADC12_EnableHardwareTrigger(ADC0_PERIPHERAL, true);
-    /* Configure hardware average mode */
-    ADC12_SetHardwareAverage(ADC0_PERIPHERAL, ADC0_hardwareAverageConfig);
-    /* Set the offset value for the conversion result */
-    ADC12_SetOffsetValue(ADC0_PERIPHERAL, (uint32_t) 0);
-    /* Set the gain value for the conversion result */
-    ADC12_SetGainValue(ADC0_PERIPHERAL, 0);
-    /* Perform auto calibration */
-    ADC12_DoAutoCalibration(ADC0_PERIPHERAL);
-    /* Enable generating the DMA trigger when conversion is completed */
-    ADC12_EnableDMA(ADC0_PERIPHERAL, true);
-}
-
-/***********************************************************************************************************************
- * LPIT0 initialization code
- **********************************************************************************************************************/
-/* clang-format off */
-/* TEXT BELOW IS USED AS SETTING FOR TOOLS *************************************
-instance:
-- name: 'LPIT0'
-- type: 'lpit'
-- mode: 'LPIT_GENERAL'
-- custom_name_enabled: 'false'
-- type_id: 'lpit_8e4186d834c8d9f4b6c0dadcc9dc2f05'
-- functional_group: 'BOARD_InitPeripherals'
-- peripheral: 'LPIT0'
-- config_sets:
-  - fsl_lpit:
-    - lpitConfig:
-      - enableRunInDebug: 'false'
-      - enableRunInDoze: 'false'
-    - timingConfig:
-      - clockSource: 'AsyncPeripheralClock'
-      - clockSourceFreq: 'ClocksTool_DefaultInit'
-    - channels:
-      - 0:
-        - lpitChannelPrefixID: 'Channel_0'
-        - channelNumber: '0'
-        - enableChain: 'false'
-        - timerMode: 'kLPIT_PeriodicCounter'
-        - timerPeriod: '1khz'
-        - lpit_trigger_select_t: 'internal_trigger_0'
-        - enableReloadOnTriggerBool: 'true'
-        - enableStopOnTimeout: 'false'
-        - enableStartOnTriggerBool: 'false'
-        - startTimer: 'false'
-        - enableInterrupt: 'false'
-        - interrupt:
-          - IRQn: 'LPIT0_IRQn'
-          - enable_interrrupt: 'enabled'
-          - enable_priority: 'false'
-          - priority: '0'
-          - enable_custom_name: 'false'
- * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS **********/
-/* clang-format on */
-const lpit_chnl_params_t LPIT0_Channel_0_struct = {
-        .chainChannel = false,
-        .timerMode = kLPIT_PeriodicCounter,
-        .triggerSource = kLPIT_TriggerSource_Internal,
-        .triggerSelect = kLPIT_Trigger_TimerChn0,
-        .enableReloadOnTrigger = true,
-        .enableStopOnTimeout = false,
-        .enableStartOnTrigger = false
-};
-const lpit_config_t LPIT0_config = {
-        .enableRunInDebug = false,
-        .enableRunInDoze = false
-};
-
-static void LPIT0_init(void) {
-    /* Initialize the LPIT. */
-    LPIT_Init(LPIT0_PERIPHERAL, &LPIT0_config);
-    /* Setup channel 0. */
-    LPIT_SetupChannel(LPIT0_PERIPHERAL, LPIT0_CHANNEL_0, &LPIT0_Channel_0_struct);
-    /* Set channel 0 period to 12000 ticks. */
-    LPIT_SetTimerPeriod(LPIT0_PERIPHERAL, LPIT0_CHANNEL_0, LPIT0_CHANNEL_0_TICKS);
-}
-
-/***********************************************************************************************************************
  * Initialization functions
  **********************************************************************************************************************/
 void BOARD_InitPeripherals(void)
@@ -906,10 +639,7 @@ void BOARD_InitPeripherals(void)
   CAN0_init();
   LPSPI0_init();
   FTM3_init();
-  LPUART0_init();
   CAN1_init();
-  ADC0_init();
-    LPIT0_init();
 }
 
 /***********************************************************************************************************************

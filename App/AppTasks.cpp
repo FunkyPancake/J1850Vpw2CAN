@@ -37,7 +37,7 @@ constexpr UBaseType_t app_task_PRIORITY = (configMAX_PRIORITIES - 1);
 
 [[noreturn]] static void appTask(void *pvParameters)
 {
-    GPIO_PinWrite(BOARD_INITPINS_D1_GPIO, BOARD_INITPINS_D1_PIN, 1);
+    GPIO_PinWrite(BOARD_INITPINS_LED1_GPIO, BOARD_INITPINS_LED1_PIN, 1);
     constexpr TickType_t xFrequency = MS2TICKS(10);
     auto can1 = std::make_shared<FlexCan>(CAN0, 16);
     auto can2 = std::make_shared<FlexCan>(CAN1, 16);
@@ -50,18 +50,18 @@ constexpr UBaseType_t app_task_PRIORITY = (configMAX_PRIORITIES - 1);
     App::GearSelector gearSelector = App::GearSelector(
             [&gateway] { return gateway.GetAverageSpeed(); },
             [&gateway] { return gateway.GetBrakePressed(); },
-            [](auto value) { GPIO_PinWrite(BOARD_INITPINS_PARKS_GPIO, BOARD_INITPINS_PARKS_PIN, value ? 1 : 0); }
+            [](auto value) { GPIO_PinWrite(BOARD_INITPINS_LSD1_GPIO, BOARD_INITPINS_LSD1_PIN, value ? 1 : 0); }
     );
     App::StarterControl starterControl = App::StarterControl(
             [&gateway]() { return gateway.GetRpm(); },
             []() { return false; },
             [&gearSelector]() { return gearSelector.GetGear(); },
-            [](auto value) { GPIO_PinWrite(BOARD_INITPINS_D4_GPIO, BOARD_INITPINS_D4_PIN, value ? 1 : 0); }
+            [](auto value) { GPIO_PinWrite(BOARD_INITPINS_LED4_GPIO, BOARD_INITPINS_LED4_PIN, value ? 1 : 0); }
     );
     TickType_t xLastWakeTime = xTaskGetTickCount();
     for (;;)
     {
-        GPIO_PinWrite(BOARD_INITPINS_D1_GPIO, BOARD_INITPINS_D1_PIN, 0);
+        GPIO_PinWrite(BOARD_INITPINS_LED1_GPIO, BOARD_INITPINS_LED1_PIN, 0);
         can1->RxTask();
         can2->RxTask();
         uds.MainFunction();
@@ -74,7 +74,7 @@ constexpr UBaseType_t app_task_PRIORITY = (configMAX_PRIORITIES - 1);
         can1->TxTask();
         can2->TxTask();
 //        sbc.RefreshWatchdog();
-        GPIO_PinWrite(BOARD_INITPINS_D1_GPIO, BOARD_INITPINS_D1_PIN, 1);
+        GPIO_PinWrite(BOARD_INITPINS_LED1_GPIO, BOARD_INITPINS_LED1_PIN, 1);
         vTaskDelayUntil(&xLastWakeTime, xFrequency);
     }
 }
