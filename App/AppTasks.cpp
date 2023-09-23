@@ -43,7 +43,7 @@ constexpr UBaseType_t app_task_PRIORITY = (configMAX_PRIORITIES - 1);
     auto can2 = std::make_shared<FlexCan>(CAN1, 16);
     auto gateway = Gateway(can1, can2);
     LpSpiRtos sbcSpi{&LPSPI0_handle};
-    Tle9461 sbc{sbcSpi};
+//    Tle9461 sbc{sbcSpi};
 
     auto canTp = CanTp{*can1};
     auto uds = Uds{&canTp};
@@ -68,12 +68,12 @@ constexpr UBaseType_t app_task_PRIORITY = (configMAX_PRIORITIES - 1);
 
         gearSelector.MainFunction();
         starterControl.MainFunction();
-
+        gateway.SetGearAndMode(gearSelector.GetGear(), gearSelector.GetDriveMode());
         gateway.MainFunction();
         canTp.TxMainFunction();
         can1->TxTask();
         can2->TxTask();
-        sbc.RefreshWatchdog();
+//        sbc.RefreshWatchdog();
         GPIO_PinWrite(BOARD_INITPINS_D1_GPIO, BOARD_INITPINS_D1_PIN, 1);
         vTaskDelayUntil(&xLastWakeTime, xFrequency);
     }

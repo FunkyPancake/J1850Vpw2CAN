@@ -12,6 +12,8 @@ target_sources(${TARGET_NAME}
         StarterControl/StarterControl.cpp
         Gateway/Gateway.cpp
         J1850Vpw/J1850Vpw.cpp
+        ChryslerPci/ChryslerPci.cpp
+
 )
 
 target_include_directories(${TARGET_NAME}
@@ -20,6 +22,7 @@ target_include_directories(${TARGET_NAME}
         StarterControl
         Gateway
         J1850Vpw
+        ChryslerPci
 )
 
 

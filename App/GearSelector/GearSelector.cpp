@@ -20,9 +20,9 @@ using namespace App;
 
 App::GearSelector::SelectorPosition App::GearSelector::GetCurrentPosition()
 {
-    auto c2 = 0;
-    auto c3 = 0;
-    auto c4 = 0;
+    auto c2 = 0;//GPIO_PinRead(BOARD_INITPINS_C2_GPIO, BOARD_INITPINS_C1_PIN);
+    auto c3 = 0;//GPIO_PinRead(BOARD_INITPINS_C3_GPIO, BOARD_INITPINS_C2_PIN);
+    auto c4 = 0;//GPIO_PinRead(BOARD_INITPINS_C4_GPIO, BOARD_INITPINS_C3_PIN);
     auto selectorPosition = static_cast<SelectorPosition>(c4 + (c3 << 1) + (c2 << 2));
     return selectorPosition;
 }
@@ -80,6 +80,7 @@ void GearSelector::ControlParkSelenoid()
     if (GetSpeed() < ParkSelenoidSpeedThreshold && GetBrake())
     {
         _parkSelenoidControlState = true;
+        SetOutput(true);
         _parkSelenoidTimer = ParkSelenoidTimerReloadValue;
     } else
     {
@@ -89,8 +90,9 @@ void GearSelector::ControlParkSelenoid()
             return;
         }
         _parkSelenoidControlState = false;
+        SetOutput(false);
     }
-    SetOutput(_parkSelenoidControlState);
+
 }
 
 GearSelector::GearSelector(const std::function<int16_t()> &getSpeed, const std::function<bool()> &getBrake,

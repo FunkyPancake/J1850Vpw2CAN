@@ -12,7 +12,6 @@ namespace App {
         switch (_state)
         {
             case State::Idle:
-
                 gear = GetGear();
                 if (GetStartRequest() && GetRpm() == 0 &&
                     (gear == GearSelector::Gear::P || gear == GearSelector::Gear::N))
@@ -22,6 +21,7 @@ namespace App {
                     SetOutput(true);
                 }
                 break;
+
             case State::Actuate:
                 if (!GetStartRequest() || _counter > EnableTimeout || GetRpm() > RpmThreshold)
                 {

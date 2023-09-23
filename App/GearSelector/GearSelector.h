@@ -68,8 +68,8 @@ namespace App {
 
         SelectorPosition GetCurrentPosition();
 
-        Gear _gear;
-        DriveMode _driveMode;
+        Gear _gear{Gear::N};
+        DriveMode _driveMode{DriveMode::Eco};
         const int16_t ParkSelenoidSpeedThreshold = 5;
         const int16_t ParkSelenoidTimerReloadValue = 10;
         int16_t _parkSelenoidTimer{ParkSelenoidTimerReloadValue};
